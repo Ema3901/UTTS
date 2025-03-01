@@ -1,0 +1,68 @@
+/* Fondo con degradado */
+html, body {
+    height: 100%;
+    background: linear-gradient(to bottom, #4c9073, #27814e) !important;
+}
+
+/* Ajuste de los campos de formulario */
+.form-control-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ccc;
+}
+
+.form-control {
+    padding-left: 2.5rem;
+    border-radius: 10px;
+}
+
+/* Ajustes del contenedor */
+.container-custom {
+    max-width: 400px;
+    width: 100%;
+    padding: 20px;
+}
+
+/* Botón principal */
+.btn-primary-custom {
+    background-color: #10c47f;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 18px;
+    color: white;
+    font-weight: bold;
+}
+
+/* Estilo para los botones de redes sociales */
+.social-login {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.social-login button {
+    background: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+/* Colores de los botones de redes */
+.btn-apple { color: black; }
+.btn-facebook { color: #1877F2; }
+.btn-google { color: #DB4437; }
+
+/* Corrección para enlaces en texto blanco */
+a.text-white {
+    color: rgba(255, 255, 255, 0.9) !important;
+    text-decoration: underline;
+}

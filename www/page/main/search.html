@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Búsqueda</title>
+    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="/www/css/styles.css">
+    <link rel="stylesheet" href="/www/css/search-styles.css">
+</head>
+<body>
+    <nav id="navbar-container"></nav>
+    
+    <div class="container">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Búsqueda">
+        </div>
+        
+        <h3>Última búsqueda</h3>
+        <div class="last-search">
+            <div class="search-item">
+                <i class="fa fa-clock"></i> Gomitas enchiladas <i class="fa fa-times"></i>
+            </div>
+            <div class="search-item">
+                <i class="fa fa-clock"></i> Tacos <i class="fa fa-times"></i>
+            </div>
+        </div>
+        
+        <h3>Productos populares</h3>
+        <div class="popular-products">
+            <div class="product-item">
+                <img src="/www/img/food-placeholder1.jpg" alt="Tacos de trompo">
+                <div>
+                    <h4>Cafe de Gengar</h4>
+                    <p class="price">MX $45</p>
+                    <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reseñas</p>
+                </div>
+            </div>
+            <div class="product-item">
+                <img src="/www/img/food-placeholder2.jpg" alt="TMA-2 DJ">
+                <div>
+                    <h4>Cafe de Snown</h4>
+                    <p class="price">MX $45</p>
+                    <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reseñas</p>
+                </div>
+            </div>
+            <div class="product-item">
+                <img src="/www/img/food-placeholder3.jpg" alt="TMA-2 Move Wireless">
+                <div>
+                    <h4>Cafe de vulpix</h4>
+                    <p class="price">MX $45</p>
+                    <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reseñas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/www/js/back-button.js"></script>
+    <script src="/www/js/navbar.js"></script>
+    <script>
+        document.getElementById('search-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                const searchQuery = encodeURIComponent(this.value.trim()); // Sanitiza la búsqueda
+                if (searchQuery) {
+                    window.location.href = `search-text.html?q=${searchQuery}`;
+                }
+            }
+        });
+    </script>
+    
+
+</body>
+</html>

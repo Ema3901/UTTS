@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil</title>
+    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="/www/css/styles.css">
+    <link rel="stylesheet" href="/www/css/user-style.css">
+</head>
+<body>
+    <nav id="navbar-container"></nav>
+    
+    <div class="container text-center">
+        <div class="profile-header">
+            <img src="/www/img/user-placeholder.jpg" alt="Usuario" class="profile-img">
+            <h3>Emanuel Vazquez</h3>
+            <p>ENEma3901@gmail.com</p>
+        </div>
+        
+        <div class="profile-options">
+            <h5 class="section-title">General</h5>
+            <div class="option" onclick="window.location.href='edit-user.html';">Editar perfil</div>
+            <div class="option" onclick="window.location.href='edit-store.html';">Tu tienda</div>
+            
+            <h5 class="section-title">Legal</h5>
+            <div class="option" onclick="window.location.href='terms-of-usage.html';">Términos de uso</div>
+            <div class="option" onclick="window.location.href='privacity.html';">Política de privacidad</div>
+            
+            <h5 class="section-title">Personal</h5>
+            <div class="option logout" onclick="showDeleteConfirmation()">Borrar tienda</div>
+            <div class="option logout" onclick="showLogoutConfirmation()">Logout</div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación de eliminación -->
+    <div id="deleteConfirmation" class="modal">
+        <div class="modal-content">
+            <p>¿Estás seguro que quieres borrar tu tienda? No podrás recuperarla.</p>
+            <button onclick="confirmDelete()">Sí</button>
+            <button onclick="closeDeleteConfirmation()">No</button>
+        </div>
+    </div>
+
+    <!-- Modal de solicitud de contraseña -->
+    <div id="passwordPrompt" class="modal">
+        <div class="modal-content">
+            <p>Ingresa tu contraseña para confirmar la eliminación:</p>
+            <input type="password" id="passwordInput" placeholder="Contraseña">
+            <button onclick="deleteStore()">Confirmar</button>
+            <button onclick="closePasswordPrompt()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación de cierre de sesión -->
+    <div id="logoutConfirmation" class="modal">
+        <div class="modal-content">
+            <p>¿Seguro que quieres cerrar sesión?</p>
+            <button onclick="logout()">Sí</button>
+            <button onclick="closeLogoutConfirmation()">No</button>
+        </div>
+    </div>
+
+    <script>
+        function showDeleteConfirmation() {
+            document.getElementById("deleteConfirmation").style.display = "block";
+        }
+
+        function closeDeleteConfirmation() {
+            document.getElementById("deleteConfirmation").style.display = "none";
+        }
+
+        function confirmDelete() {
+            closeDeleteConfirmation();
+            document.getElementById("passwordPrompt").style.display = "block";
+        }
+
+        function closePasswordPrompt() {
+            document.getElementById("passwordPrompt").style.display = "none";
+        }
+
+        function deleteStore() {
+            let password = document.getElementById("passwordInput").value;
+            if (password) {
+                alert("Tienda eliminada correctamente.");
+                closePasswordPrompt();
+            } else {
+                alert("Por favor, ingresa tu contraseña.");
+            }
+        }
+
+        function showLogoutConfirmation() {
+            document.getElementById("logoutConfirmation").style.display = "block";
+        }
+
+        function closeLogoutConfirmation() {
+            document.getElementById("logoutConfirmation").style.display = "none";
+        }
+
+        function logout() {
+            alert("Sesión cerrada correctamente.");
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/www/js/back-button.js"></script>
+    <script src="/www/js/navbar.js"></script>
+
+</body>
+</html>

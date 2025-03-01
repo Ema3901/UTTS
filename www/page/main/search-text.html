@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados de Búsqueda</title>
+    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="/www/css/styles.css">
+    <link rel="stylesheet" href="/www/css/search-text-styles.css">
+</head>
+<body>
+    <nav id="navbar-container"></nav>
+
+    <div class="container">
+        <div class="search-container">
+            <input type="text" placeholder="Tacos">
+        </div>
+
+        <div class="filter-container">
+            <button class="filter-button"><i class="fa fa-sliders-h"></i> Filtro</button>
+            <span>Popularidad</span>
+            <span>Nuevo</span>
+            <span>Mayor precio</span>
+            <span>Menor precio</span>
+        </div>
+
+        <div class="search-results">
+            <div class="product-card" onclick="window.location.href='product.html';">
+                <img src="/www/img/food-placeholder1.jpg" alt="Tacos de trompo">
+                <h3>Cafe de Gengar</h3>
+                <p class="price">MX $45</p>
+                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
+            </div>
+            <div class="product-card">
+                <img src="/www/img/food-placeholder2.jpg" alt="Tacos de trompo">
+                <h3>Cafe de Snowm</h3>
+                <p class="price">MX $45</p>
+                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
+            </div>
+            <div class="product-card">
+                <img src="/www/img/food-placeholder3.jpg" alt="Tacos de trompo">
+                <h3>Cafe de Vulpix</h3>
+                <p class="price">MX $45</p>
+                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
+            </div>
+            <div class="product-card">
+                <img src="/www/img/food-placeholder1.jpg" alt="Tacos de trompo">
+                <h3>Cafe de Gengar</h3>
+                <p class="price">MX $45</p>
+                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
+            </div>
+            <div class="product-card">
+                <img src="/www/img/food-placeholder2.jpg" alt="Tacos de trompo">
+                <h3>Cafe de Snowm</h3>
+                <p class="price">MX $45</p>
+                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
+            </div>
+            <div class="product-card">
+                <img src="/www/img/food-placeholder3.jpg" alt="Tacos de trompo">
+                <h3>Cafe de Vulpix</h3>
+                <p class="price">MX $45</p>
+                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Filtros -->
+    <div id="filter-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h2>Filtro</h2>
+
+            <div class="filter-section">
+                <h3>Categoría</h3>
+                <div class="filter-options">
+                    <span class="active">Comida</span>
+                    <span>Tecnología</span>
+                    <span>Mercería</span>
+                    <span>Ropa</span>
+                    <span>Electrónica</span>
+                    <span>Hogar</span>
+                    <span>Deportes</span>
+                    <span>Salud</span>
+                    <span>Automotriz</span>
+                </div>
+            </div>
+            <hr>
+            <div class="filter-section">
+                <h3>Ordenar por</h3>
+                <div class="filter-options">
+                    <span class="active">Popularidad</span>
+                    <span>Más nuevo</span>
+                    <span>Más antiguo</span>
+                    <span>Mayor precio</span>
+                    <span>Menor precio</span>
+                    <span>Reseñas</span>
+                </div>
+            </div>
+            <hr>
+            <div class="filter-section">
+                <h3>Rango de Precio</h3>
+                <div class="price-range">
+                    <input type="text" placeholder="Precio min.">
+                    <input type="text" placeholder="Precio máx.">
+                </div>
+            </div>
+            <hr>
+            <button class="apply-filter">Aplicar filtro</button>
+        </div>
+    </div>
+
+    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const filterButton = document.querySelector(".filter-button");
+            const filterModal = document.getElementById("filter-modal");
+            const closeModal = document.querySelector(".close-modal");
+        
+            // Asegurarse de que el modal esté oculto al cargar la página
+            filterModal.style.display = "none";
+        
+            filterButton.addEventListener("click", function () {
+                filterModal.style.display = "flex";
+            });
+        
+            closeModal.addEventListener("click", function () {
+                filterModal.style.display = "none";
+            });
+        
+            window.addEventListener("click", function (event) {
+                if (event.target === filterModal) {
+                    filterModal.style.display = "none";
+                }
+            });
+        });
+        </script>
+        <script src="/www/js/back-button.js"></script>
+        <script src="/www/js/navbar.js"></script>
+        
+
+</body>
+</html>

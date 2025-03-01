@@ -1,0 +1,147 @@
+/* Importación de fuente */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
+:root {
+    --primary-color: #0ACF83;
+    --text-color: #222;
+    --bg-color: #F8F9FA;
+    --border-radius: 12px;
+    --font-family: 'DM Sans', sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+}
+
+/* Estilos generales */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+}
+
+p {
+    font-weight: 400;
+    color: #555;
+}
+
+a {
+    text-decoration: none;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background-color: #fff;
+}
+
+.navbar img {
+    border-radius: 50%;
+}
+
+/* Contenedor de búsqueda */
+.search-container {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    padding: 12px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 16px 0;
+}
+
+.search-container input {
+    border: none;
+    outline: none;
+    flex: 1;
+    font-size: 16px;
+}
+
+/* Pestañas de categorías */
+.categories {
+    display: flex;
+    gap: 12px;
+    padding: 16px 0;
+    overflow-x: auto;
+}
+
+.category {
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    color: #666;
+    background: #E0E0E0;
+    cursor: pointer;
+}
+
+.category.active {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+/* Tarjeta de producto */
+.product-card {
+    background: #fff;
+    padding: 16px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.product-card img {
+    width: 100%;
+    border-radius: var(--border-radius);
+}
+
+.product-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 12px 0;
+}
+
+.product-card p {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+}
+
+.product-card .price {
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+/* Botón */
+.button {
+    background: var(--primary-color);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+}
+
+.button:hover {
+    background: #08b972;
+}
+
+/* Diseño responsivo */
+@media (max-width: 768px) {
+    .categories {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+
+    .product-card {
+        width: 100%;
+    }
+}

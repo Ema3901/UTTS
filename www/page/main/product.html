@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Producto</title>
+    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="/www/css/styles.css">
+    <link rel="stylesheet" href="/www/css/product-styles.css">
+</head>
+<body>
+    <nav id="navbar-container"></nav>
+    
+    <div class="container">
+        <h3 class="text-success" style="margin-top: 20px;" onclick="window.location.href='store.html';">Tacos Mauricio</h3>
+        <h1>Tacos de trompo</h1>
+        
+        <div class="tabs">
+            <span class="active">Resumen</span>
+            <span onclick="window.location.href='product-details.html';">Detalles y especificaciones</span>
+        </div>
+        
+        <div class="product-image-slider">
+            <img id="product-image" src="/www/img/food-placeholder1.jpg" alt="Tacos de trompo" class="img-fluid rounded">
+            <img src="/www/img/food-placeholder2.jpg" alt="Tacos de trompo" class="img-fluid rounded">
+            <img src="/www/img/food-placeholder3.jpg" alt="Tacos de trompo" class="img-fluid rounded">
+        </div>
+        
+        <div class="reviews">
+            <h4>Review (102)</h4>
+            <div class="review">
+                <img src="/www/img/seller-placeholder.jpg" alt="User" class="user-img">
+                <div>
+                    <strong>Madefina</strong>
+                    <div class="stars">⭐⭐⭐⭐⭐</div>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+                </div>
+            </div>
+            <div class="review">
+                <img src="/www/img/user-placeholder.jpg" alt="User" class="user-img">
+                <div>
+                    <strong>Irfan</strong>
+                    <div class="stars">⭐⭐⭐⭐⭐</div>
+                    <p>Duis aute irure dolor in reprehenderit...</p>
+                </div>
+            </div>
+            <div class="review">
+                <img src="/www/img/seller-placeholder.jpg" alt="User" class="user-img">
+                <div>
+                    <strong>Ravi Putra</strong>
+                    <div class="stars">⭐⭐⭐⭐⭐</div>
+                    <p>Exceptetur sint occaecat cupidatat non proident...</p>
+                </div>
+            </div>
+        </div>
+        
+        <h4>Otro Producto</h4>
+        <div class="related-products">
+            <div class="product-card">
+                <img src="/www/img/food-placeholder2.jpg" alt="Tacos de trompo">
+                <h3>Tacos de trompo</h3>
+                <p class="price">MX $45</p>
+            </div>
+            <div class="product-card">
+                <img src="/www/img/food-placeholder3.jpg" alt="CO2 Cable">
+                <h3>CO2 - Cable</h3>
+                <p class="price">USD 25</p>
+            </div>
+            <div class="product-card">
+                <img src="/www/img/food-placeholder3.jpg" alt="CO2 Cable">
+                <h3>CO2 - Cable</h3>
+                <p class="price">USD 25</p>
+            </div>
+        </div>
+        
+        <!-- Botón de WhatsApp -->
+        <button class="button" onclick="contactarVendedor('+528998733689', 'Tacos de trompo', document.getElementById('product-image').src)">
+            Contactar con el vendedor
+        </button>
+        <hr>
+    </div>
+    
+    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/www/js/back-button.js"></script>
+    <script src="/www/js/navbar.js"></script>
+
+    <script>
+        function contactarVendedor(numero, producto, imagen) {
+            let mensaje = `Me interesa este producto: ${producto}, más información por favor.`;
+            let urlImagen = encodeURIComponent(imagen);
+            let urlProducto = encodeURIComponent("http://127.0.0.1:5500/www/page/main/product.html"); // Link del producto
+            let enlace = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}%0AImagen: ${urlImagen}%0ALink del producto: ${urlProducto}`;
+            window.open(enlace, '_blank');
+        }
+    </script>
+</body>
+</html>

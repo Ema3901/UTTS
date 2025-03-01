@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil</title>
+    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="/www/css/styles.css">
+    <link rel="stylesheet" href="/www/css/edit-profile.css">
+</head>
+<body>
+    <nav id="navbar-container"></nav>
+    
+    <div class="container">
+        <div class="profile-picture">
+            <img src="/www/img/user-placeholder.jpg" alt="Foto de perfil" id="profile-img">
+            <input type="file" id="upload-photo" accept="image/*" hidden>
+            <button class="button" onclick="document.getElementById('upload-photo').click();">Cambiar Foto</button>
+        </div>
+        <form>
+            <label for="username">Nombre de usuario</label>
+            <input type="text" id="username" placeholder="Ingresa tu nuevo nombre">
+            
+            <label for="email">Correo electrónico</label>
+            <input type="email" id="email" placeholder="Ingresa tu correo">
+
+            <!-- Campo de teléfono con lada -->
+            <label for="phone">Número telefónico</label>
+            <div class="phone-container">
+                <select id="phone-lada" name="phone-lada">
+                    <option value="+52">+52 México</option>
+                    <option value="+1">+1 USA/Canada</option>
+                    <option value="+44">+44 Reino Unido</option>
+                    <option value="+34">+34 España</option>
+                    <!-- Puedes añadir más opciones de lada según lo necesites -->
+                </select>
+                <input type="tel" id="phone-number" placeholder="1234567890" pattern="\d{10}" required>
+            </div>
+            
+            <label for="password">Nueva contraseña</label>
+            <input type="password" id="password" placeholder="********">
+            
+            <label for="confirm-password">Confirmar contraseña</label>
+            <input type="password" id="confirm-password" placeholder="********">
+            
+            <button type="submit" class="button">Guardar cambios</button>
+        </form>
+    </div>
+
+    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/www/js/back-button.js"></script>
+    <script src="/www/js/navbar.js"></script>
+</body>
+</html>

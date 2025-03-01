@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrar Productos</title>
+    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="/www/css/styles.css">
+    <link rel="stylesheet" href="/www/css/store-styles.css">
+    <link rel="stylesheet" href="/www/css/user-store-style.css">
+</head>
+<body>
+    <nav id="navbar-container"></nav>
+
+    <div class="store-header">
+        <div class="store-name">Tacos de MAURICIO</div>
+        <div class="banner">
+            <img src="/www/img/banner-store.jpeg" alt="Banner de la tienda" class="img-fluid rounded">
+        </div>
+    </div>
+
+        <div class="product-grid" id="productList">
+            <div class="product-card">
+                <img src="/www/img/food-placeholder1.jpg" alt="Producto 1">
+                <h3>Producto 1</h3>
+                <p class="price">MX $45</p>
+                <button class="edit-button" onclick="window.location.href='editProduct.html';"><i class="fa fa-edit"></i> Editar</button>
+            </div>
+            <div class="product-card">
+                <img src="/www/img/food-placeholder2.jpg" alt="Producto 2">
+                <h3>Producto 2</h3>
+                <p class="price">MX $50</p>
+                <button class="edit-button" onclick="window.location.href='editProduct.html';"><i class="fa fa-edit"></i> Editar</button>
+            </div>
+            <div class="product-card add-product-card">
+                <a href="addProduct.html">
+                    <div class="plus-icon">
+                        <i class="fa fa-plus"></i>
+                    </div>
+                    <h3>Agregar Producto</h3>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Formulario emergente para editar tienda -->
+    <div id="editStoreForm" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditStoreForm()">&times;</span>
+            <h2>Editar Tienda</h2>
+            <form id="editStoreFormContent">
+
+
+                <label for="storeBanner">Banner de la tienda</label>
+                <input type="file" id="storeBannerInput" accept="image/*">
+
+                <label for="storeNameInput">Nombre de la tienda</label>
+                <input type="text" id="storeNameInput" value="TIENDA MAURICIO RODRIGUEZ">
+
+                <button type="button" onclick="updateStoreDetails()">Guardar cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Botón flotante de edición -->
+    <button class="floating-button" onclick="openEditStoreForm()">
+        <i class="fa fa-edit"></i>
+    </button>
+
+    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/www/js/admin-products.js"></script>
+    <script>
+        // Funciones para el formulario de edición de tienda
+        function openEditStoreForm() {
+            const modal = document.getElementById("editStoreForm");
+            modal.style.display = "flex";
+        }
+
+        function closeEditStoreForm() {
+            const modal = document.getElementById("editStoreForm");
+            modal.style.display = "none";
+        }
+
+        function updateStoreDetails() {
+            // Obtener los nuevos valores del formulario
+            const storeName = document.getElementById("storeNameInput").value;
+            const storeImage = document.getElementById("storeImage").files[0];
+            const storeBanner = document.getElementById("storeBannerInput").files[0];
+
+            // Actualizar el nombre de la tienda
+            document.getElementById("storeName").innerText = storeName;
+
+            // Si se seleccionó una nueva imagen de la tienda
+            if (storeImage) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById("storeName").style.backgroundImage = `url(${e.target.result})`;
+                };
+                reader.readAsDataURL(storeImage);
+            }
+
+            // Si se seleccionó un nuevo banner
+            if (storeBanner) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById("storeBanner").src = e.target.result;
+                };
+                reader.readAsDataURL(storeBanner);
+            }
+
+            closeEditStoreForm(); // Cerrar formulario
+        }
+    </script>
+
+    <script src="/www/js/back-button.js"></script>
+    <script src="/www/js/navbar.js"></script>
+</body>
+</html>

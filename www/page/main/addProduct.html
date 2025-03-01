@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Producto</title>
+    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="/www/css/styles.css">
+    <link rel="stylesheet" href="/www/css/add-product-style.css">
+</head>
+<body>
+    <nav id="navbar-container"></nav>
+
+    <div class="container">
+        <h2>Agregar Producto</h2>
+
+        <!-- Formulario de Agregar Producto -->
+        <form id="addProductForm">
+            <!-- Subir imágenes -->
+            <label for="productImages">Subir Imágenes (máximo 10):</label>
+            <input type="file" id="productImages" multiple accept="image/*" max="10">
+
+            <!-- Título del producto -->
+            <label for="productTitle">Título del Producto:</label>
+            <input type="text" id="productTitle" placeholder="Escribe el título del producto" required>
+
+            <!-- Descripción del producto -->
+            <label for="productDescription">Descripción:</label>
+            <textarea id="productDescription" rows="4" placeholder="Escribe una descripción del producto" required></textarea>
+
+            <!-- Especificaciones Técnicas -->
+            <h3>Especificaciones Técnicas</h3>
+            <table id="specsTable">
+                <thead>
+                    <tr>
+                        <th>Característica</th>
+                        <th>Valor</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Aquí se agregarán dinámicamente las filas -->
+                </tbody>
+            </table>
+            <button type="button" onclick="addSpecRow()">Agregar Especificación</button>
+
+            <!-- Botón de Guardar Producto -->
+            <button type="submit">Guardar Producto</button>
+        </form>
+    </div>
+
+    <!-- Pop-up de éxito -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSuccessModal()">&times;</span>
+            <h2>Producto Guardado con Éxito</h2>
+            <p>El producto ha sido guardado correctamente.</p>
+            <button onclick="redirectBack()">Volver a la Tienda</button>
+        </div>
+    </div>
+
+    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/www/js/add-product.js"></script>
+    <script>
+        // Función para agregar una nueva fila en la tabla de especificaciones
+        function addSpecRow() {
+            const table = document.querySelector("#specsTable tbody");
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><input type="text" placeholder="Ej. Material" required></td>
+                <td><input type="text" placeholder="Ej. Acero inoxidable" required></td>
+                <td><button type="button" class="remove-row">X</button></td>
+            `;
+            table.appendChild(row);
+
+            // Funcionalidad para eliminar fila
+            row.querySelector(".remove-row").addEventListener("click", function () {
+                row.remove();
+            });
+        }
+
+        // Función para manejar el envío del formulario
+        document.getElementById("addProductForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevenir envío tradicional del formulario
+
+            // Aquí agregarías la lógica para guardar el producto (enviar a backend, etc.)
+
+            // Mostrar el modal de éxito
+            openSuccessModal();
+        });
+
+        // Función para abrir el modal de éxito
+        function openSuccessModal() {
+            document.getElementById("successModal").style.display = "flex";
+        }
+
+        // Función para cerrar el modal de éxito
+        function closeSuccessModal() {
+            document.getElementById("successModal").style.display = "none";
+        }
+
+        // Función para redirigir a la página anterior
+        function redirectBack() {
+            window.history.back(); // Redirige a la página anterior
+        }
+    </script>
+
+    <script src="/www/js/back-button.js"></script>
+    <script src="/www/js/navbar.js"></script>
+</body>
+</html>

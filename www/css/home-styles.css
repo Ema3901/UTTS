@@ -1,0 +1,46 @@
+/* Ajustes para mejorar la visualización de la página */
+.container {
+    padding: 16px;
+}
+
+.categories .category.active {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.product-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 16px 0;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.product-card img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.button {
+    display: block;
+    background: var(--primary-color);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 12px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.recommended {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 8px;
+}

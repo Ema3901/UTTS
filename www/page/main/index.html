@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTTS - Inicio</title>
+    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="/www/css/styles.css">
+    <link rel="stylesheet" href="/www/css/home-styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a><i class="fa fa-bell" onclick="window.location.href='notification.html';"></i></a>
+        <img src="/www/img/logo.png" alt="Logo" width="100" onclick="window.location.href='index.html';">
+        <img src="/www/img/user-placeholder.jpg" alt="Usuario" width="40" onclick="window.location.href='user.html';">
+    </nav>
+
+    <div class="container">
+        <h2>Hola, Emanuel</h2> <!-- Actualizar a User en database -->
+        <h1>¿Qué estás buscando el día de hoy?</h1>
+        
+        <div class="search-container">
+            <input type="text" placeholder="Búsqueda" onclick="window.location.href='search.html';" readonly>
+        </div>
+        
+        <div class="categories">
+            <span class="category active">Comida</span>
+            <span class="category">Tecnología</span>
+            <span class="category">Mercería</span>
+            <span class="category">Ropa</span>
+        </div>
+        
+        <div class="product-card" onclick="window.location.href='product.html';"> <!-- reedigiri conforme a la ID -->
+            <h3>Cafe de Gengar</h3> <!-- Elegir ID de producto aleatoria -->
+            <img src="/www/img/food-placeholder1.jpg" alt="Cafe">
+            <p class="button" >Compra ahora →</p> 
+        </div>
+        
+        <h2>Productos recomendados</h2>
+        <div class="recommended">
+            <div class="product-card" onclick="window.location.href='product.html';">
+                <img src="/www/img/food-placeholder2.jpg" alt="Cafe"> <!-- Elegir ID de producto aleatoria -->
+                <h3>Tacos de trompo</h3>
+                <p class="price">MX $45</p>
+            </div>
+            <div class="product-card" onclick="window.location.href='product.html';">
+                <img src="/www/img/food-placeholder3.jpg" alt="Cafe"> <!-- Elegir ID de producto aleatoria -->
+                <h3>CO2 - Cable</h3>
+                <p class="price">USD 25</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/www/js/navbar.js"></script>
+</body>
+</html>
