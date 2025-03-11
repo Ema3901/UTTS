@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro</title>
-    
-    <!-- Bootstrap 5 CSS (cargado localmente) -->
+
+    <!-- Bootstrap 5 CSS -->
     <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- FontAwesome para los íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <!-- Archivo CSS externo -->
@@ -18,38 +16,35 @@
 <body class="bg-gradient d-flex align-items-center justify-content-center min-vh-100">
     <div class="container container-custom">
         <div class="text-center mb-4">
-            <h1 class="text-white fw-bold">UTTS</h1>
-            <p class="text-white">Encuentra y solicita todo lo que necesites</p>
+            <h1 class="text-white fw-bold">Regístrate</h1>
+            <p class="text-white">Crea tu cuenta para empezar</p>
         </div>
-        <form>
+        <form id="signupForm">
+            <div class="mb-3 position-relative">
+                <i class="fas fa-user form-control-icon"></i>
+                <input type="text" class="form-control" id="username" placeholder="Nombre de usuario" required>
+            </div>
             <div class="mb-3 position-relative">
                 <i class="fas fa-envelope form-control-icon"></i>
-                <input type="email" class="form-control" id="email" placeholder="Email">
+                <input type="email" class="form-control" id="email" placeholder="Correo electrónico" required>
             </div>
             <div class="mb-3 position-relative">
                 <i class="fas fa-lock form-control-icon"></i>
-                <input type="password" class="form-control" id="password" placeholder="Password">
+                <input type="password" class="form-control" id="password" placeholder="Contraseña" required>
             </div>
             <div class="text-center">
-                <button type="button" class="btn btn-primary-custom w-100">Regístrate</button>
+                <button type="submit" class="btn btn-primary-custom w-100">Registrarse</button>
             </div>
         </form>
-
-        <!-- Botones de inicio de sesión con redes sociales -->
-        <div class="social-login mt-4">
-            <button class="btn-apple"><i class="fab fa-apple"></i></button>
-            <button class="btn-facebook"><i class="fab fa-facebook-f"></i></button>
-            <button class="btn-google"><i class="fab fa-google"></i></button>
-        </div>
-
         <div class="text-center mt-4">
-            <p class="text-white">Ya tienes cuenta? 
-                <a href="login.html" class="fw-bold text-white">Inicia sesión aquí</a>
+            <p class="text-white">¿Ya tienes cuenta? 
+                <a href="login.html" class="text-white fw-bold">Inicia sesión aquí</a>
             </p>
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS (cargado localmente, incluye Popper.js) -->
+    <!-- Bootstrap 5 JS -->
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/www/js/auth.js"></script> <!-- Archivo JS para manejar autenticación -->
 </body>
 </html>

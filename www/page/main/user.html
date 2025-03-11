@@ -14,22 +14,22 @@
     
     <div class="container text-center">
         <div class="profile-header">
-            <img src="/www/img/user-placeholder.jpg" alt="Usuario" class="profile-img">
-            <h3>Emanuel Vazquez</h3>
-            <p>ENEma3901@gmail.com</p>
+            <img id="userProfileImage" src="/www/img/user-placeholder.jpg" alt="Usuario" class="profile-img">
+            <h3 id="userName">Cargando...</h3>
+            <p id="userEmail">Cargando...</p>
         </div>
         
         <div class="profile-options">
             <h5 class="section-title">General</h5>
             <div class="option" onclick="window.location.href='edit-user.html';">Editar perfil</div>
-            <div class="option" onclick="window.location.href='edit-store.html';">Tu tienda</div>
+            <div id="storeButton" class="option">Cargando...</div>
             
             <h5 class="section-title">Legal</h5>
             <div class="option" onclick="window.location.href='terms-of-usage.html';">Términos de uso</div>
             <div class="option" onclick="window.location.href='privacity.html';">Política de privacidad</div>
             
             <h5 class="section-title">Personal</h5>
-            <div class="option logout" onclick="showDeleteConfirmation()">Borrar tienda</div>
+            <div id="deleteStoreOption" class="option logout" onclick="showDeleteConfirmation()">Borrar tienda</div>
             <div class="option logout" onclick="showLogoutConfirmation()">Logout</div>
         </div>
     </div>
@@ -63,44 +63,120 @@
     </div>
 
     <script>
+        // Cargar Datos del Usuario y Verificar Tienda al Cargar la Página
+        document.addEventListener("DOMContentLoaded", async () => {
+            const user = JSON.parse(localStorage.getItem("user"));
+
+            if (user) {
+                document.getElementById("userName").textContent = user.username || "Usuario";
+                document.getElementById("userEmail").textContent = user.email || "";
+
+                if (user.profile_picture) {
+                    document.getElementById("userProfileImage").src = user.profile_picture;
+                }
+
+                //Verificar si el usuario tiene una tienda
+                try {
+                    let storeResponse = await fetch(`https://uttsmarket.bsite.net/api/stores/readByUser/${user.user_id}`);
+                    let storeData = await storeResponse.json();
+                    let storeButton = document.getElementById("storeButton");
+
+                    if (storeData && storeData.store_id) {
+                        storeButton.innerText = "Tu tienda";
+                        storeButton.onclick = function () {
+                            window.location.href = `/www/page/main/store.html?store_id=${storeData.store_id}`;
+                        };
+                    } else {
+                        storeButton.innerText = "Crear tienda";
+                        storeButton.onclick = function () {
+                            window.location.href = `/www/page/main/create-store.html`;
+                        };
+
+                        // Si NO tiene tienda, ocultamos el botón de "Borrar tienda"
+                        document.getElementById("deleteStoreOption").style.display = "none";
+                    }
+                } catch (error) {
+                    console.error("Error al verificar tienda:", error);
+                    document.getElementById("deleteStoreOption").style.display = "none"; // En caso de error, ocultar también
+                }
+
+            } else {
+                window.location.href = "/www/page/login/login.html";
+            }
+        });
+
+        // Mostrar Modales
         function showDeleteConfirmation() {
             document.getElementById("deleteConfirmation").style.display = "block";
         }
-
         function closeDeleteConfirmation() {
             document.getElementById("deleteConfirmation").style.display = "none";
         }
-
         function confirmDelete() {
             closeDeleteConfirmation();
             document.getElementById("passwordPrompt").style.display = "block";
         }
-
         function closePasswordPrompt() {
             document.getElementById("passwordPrompt").style.display = "none";
         }
-
-        function deleteStore() {
-            let password = document.getElementById("passwordInput").value;
-            if (password) {
-                alert("Tienda eliminada correctamente.");
-                closePasswordPrompt();
-            } else {
-                alert("Por favor, ingresa tu contraseña.");
-            }
-        }
-
         function showLogoutConfirmation() {
             document.getElementById("logoutConfirmation").style.display = "block";
         }
-
         function closeLogoutConfirmation() {
             document.getElementById("logoutConfirmation").style.display = "none";
         }
 
+        // Cerrar Sesión (Logout)
         function logout() {
-            alert("Sesión cerrada correctamente.");
-            window.location.href = 'login.html';
+            localStorage.removeItem("user");
+            window.location.href = "/www/page/login/login.html";
+        }
+
+        // Eliminar Tienda
+        async function deleteStore() {
+            let password = document.getElementById("passwordInput").value;
+            if (!password) {
+                alert("Por favor, ingresa tu contraseña.");
+                return;
+            }
+
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user) {
+                alert("No hay sesión activa.");
+                window.location.href = "/www/page/login/login.html";
+                return;
+            }
+
+            try {
+                // Obtener la tienda asociada al usuario
+                let storeResponse = await fetch(`https://uttsmarket.bsite.net/api/stores/readByUser/${user.user_id}`);
+                let storeData = await storeResponse.json();
+
+                if (!storeData || !storeData.store_id) {
+                    alert("No tienes una tienda asociada.");
+                    return;
+                }
+
+                let storeId = storeData.store_id;
+
+                // Petición DELETE para eliminar la tienda
+                let response = await fetch(`https://uttsmarket.bsite.net/api/stores/delete/${storeId}`, {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                });
+
+                let result = await response.json();
+                if (result.success) {
+                    alert("Tienda eliminada correctamente.");
+                    window.location.reload();
+                } else {
+                    alert("Error al eliminar la tienda: " + result.message);
+                }
+
+            } catch (error) {
+                console.error("Error en la eliminación:", error);
+                alert("No se pudo eliminar la tienda.");
+            }
         }
     </script>
 

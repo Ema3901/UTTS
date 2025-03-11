@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar Tienda - UTTS</title>
+    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="/www/css/styles.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a><i class="fa fa-chevron-left" onclick="window.location.href='user.html';"></i></a>
+        <img src="/www/img/logo.png" alt="Logo" width="100" onclick="window.location.href='index.html';">
+        <img src="/www/img/user-placeholder.jpg" alt="Usuario" width="40" onclick="window.location.href='user.html';">
+    </nav>
+
+    <div class="container">
+        <h1>Configura tu tienda</h1>
+        <form action="edit-store.html" method="POST">
+            <!-- Nombre de la tienda -->
+            <div class="mb-3">
+                <label for="storeName" class="form-label">Nombre de la tienda</label>
+                <input type="text" class="form-control" id="storeName" name="storeName" required>
+            </div>
+
+            <!-- Producto -->
+            <div class="mb-3">
+                <label for="productName" class="form-label">Nombre del producto</label>
+                <input type="text" class="form-control" id="productName" name="productName" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="productPrice" class="form-label">Precio del producto</label>
+                <input type="number" class="form-control" id="productPrice" name="productPrice" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="productDescription" class="form-label">Descripción del producto</label>
+                <textarea class="form-control" id="productDescription" name="productDescription" rows="3" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="productImage" class="form-label">Imagen del producto</label>
+                <input type="file" class="form-control" id="productImage" name="productImage" required>
+            </div>
+
+            <!-- Banner de la tienda -->
+            <div class="mb-3">
+                <label for="storeBanner" class="form-label">Banner de la tienda</label>
+                <input type="file" class="form-control" id="storeBanner" name="storeBanner" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Crear tienda</button>
+        </form>
+    </div>
+
+    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+</body>
+</html>

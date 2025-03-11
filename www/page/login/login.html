@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     
-    <!-- Bootstrap 5 CSS (cargado localmente) -->
+    <!-- Bootstrap 5 CSS -->
     <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- FontAwesome para los íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <!-- Archivo CSS externo -->
@@ -21,7 +19,7 @@
             <h1 class="text-white fw-bold">UTTS</h1>
             <p class="text-white">Encuentra y solicita todo lo que necesites</p>
         </div>
-        <form>
+        <form id="loginForm">
             <div class="mb-3 position-relative">
                 <i class="fas fa-envelope form-control-icon"></i>
                 <input type="email" class="form-control" id="email" placeholder="Email">
@@ -34,7 +32,7 @@
                 <a href="forgot-password.html" class="text-white fw-bold">Olvidé mi contraseña</a>
             </div>
             <div class="text-center">
-                <button type="button" class="btn btn-primary-custom w-100" onclick="window.location.href='index.html'">Inicia sesión</button>
+                <button type="submit" class="btn btn-primary-custom w-100">Inicia sesión</button>
             </div>
         </form>
         <div class="text-center mt-4">
@@ -44,7 +42,8 @@
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS (cargado localmente, incluye Popper.js) -->
+    <!-- Bootstrap 5 JS -->
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/www/js/auth.js"></script>
 </body>
 </html>
