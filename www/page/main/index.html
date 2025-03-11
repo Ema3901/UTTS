@@ -52,22 +52,19 @@
         </div>
     </div>
     
+    <script src="/www/js/session.js"></script>
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="/www/js/navbar.js"></script>
     <script>
         // Cargar el nombre del usuario dinámicamente
         document.addEventListener("DOMContentLoaded", async function() {
-            try {
-                const response = await fetch("https://uttsmarket.bsite.net/api/users/read/5"); // Cambiar el ID por el correcto
-                const user = await response.json();
-                if (user.username) {
-                    document.getElementById("username").textContent = `Hola, ${user.username}`;
-                } else {
-                    document.getElementById("username").textContent = "Hola, Usuario";
-                }
-            } catch (error) {
-                console.error("Error al obtener el usuario:", error);
+            const user = JSON.parse(localStorage.getItem("user"));
+
+            if (user) {
+                document.getElementById("username").textContent = `Hola, ${user.username}`;
+            } else {
                 document.getElementById("username").textContent = "Hola, Usuario";
+                window.location.href = "/www/page/login/login.html";
             }
         });
     </script>

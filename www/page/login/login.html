@@ -44,6 +44,37 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
-    <script src="/www/js/auth.js"></script>
+    <script>
+        // Manejo del formulario de login
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Realizar la petición POST para hacer login
+            fetch('https://uttsmarket.bsite.net/api/users/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("Usuario logueado:", data.Value);
+                    // Guardar el usuario en localStorage
+                    localStorage.setItem('user', JSON.stringify(data.Value)); // Almacenar el usuario correctamente
+                    // Redirigir a la página de inicio
+                    window.location.href = "/www/page/main/index.html";
+                } else {
+                    alert("Correo o contraseña incorrectos.");
+                }
+            })
+            .catch(error => {
+                console.error("Error al iniciar sesión:", error);
+                alert("Hubo un problema al iniciar sesión.");
+            });
+        });
+    </script>
 </body>
 </html>

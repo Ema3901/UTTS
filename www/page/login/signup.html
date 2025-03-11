@@ -45,6 +45,47 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
-    <script src="/www/js/auth.js"></script> <!-- Archivo JS para manejar autenticación -->
+    <script>
+        document.getElementById("signupForm").addEventListener("submit", async function(event) {
+            event.preventDefault(); // Evita el envío tradicional del formulario
+
+            const username = document.getElementById("username").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            // Verifica que los campos no estén vacíos
+            if (!username || !email || !password) {
+                alert("Por favor, completa todos los campos.");
+                return;
+            }
+
+            // Realiza la solicitud POST al servidor
+            try {
+                const response = await fetch("https://uttsmarket.bsite.net/api/users/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password,
+                        phone_number: "1234567890"  // Puedes omitir este campo si no es obligatorio
+                    })
+                });
+
+                const result = await response.json();
+                if (result.Message && result.Message === "User created successfully.") {
+                    alert("Registro exitoso. Por favor, inicia sesión.");
+                    window.location.href = "login.html"; // Redirigir a la página de login
+                } else {
+                    alert("Error en el registro: " + result.Message);
+                }
+            } catch (error) {
+                console.error("Error al registrar:", error);
+                alert("Hubo un problema al registrar. Intenta nuevamente.");
+            }
+        });
+    </script>
 </body>
 </html>
