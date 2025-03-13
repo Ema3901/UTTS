@@ -65,48 +65,6 @@
             }
         }
 
-        async function uploadImageToGitHub(file) {
-            const githubToken = 'tokengithub'; // Tu token
-            const repoName = 'imagenesUTTS'; // Nombre de tu repositorio
-            const owner = 'Ema3901'; // Tu nombre de usuario de GitHub
-            const path = `profile_pics/${generateRandomName()}`; // Ruta donde se almacenará la imagen
-
-            const url = `https://api.github.com/repos/${owner}/${repoName}/contents/${path}`;
-
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const fileContent = reader.result.split(',')[1]; // Extraer base64
-
-                const data = {
-                    message: 'Upload profile image',
-                    content: fileContent,
-                };
-
-                try {
-                    const response = await fetch(url, {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `token ${githubToken}`,
-                            'Accept': 'application/vnd.github.v3+json',
-                        },
-                        body: JSON.stringify(data),
-                    });
-
-                    const responseData = await response.json();
-                    if (response.ok) {
-                        const imageUrl = `https://github.com/${owner}/${repoName}/blob/main/${path}?raw=true`; // URL de la imagen subida
-                        return imageUrl;
-                    } else {
-                        console.error('Error al subir la imagen:', responseData);
-                    }
-                } catch (error) {
-                    console.error('Error en la solicitud:', error);
-                }
-            };
-
-            reader.readAsDataURL(file);
-        }
-
         function generateRandomName() {
             const timestamp = new Date().getTime();
             const randomNum = Math.floor(Math.random() * 1000000);
