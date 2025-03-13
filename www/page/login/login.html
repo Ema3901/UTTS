@@ -14,6 +14,12 @@
     <link rel="stylesheet" href="/www/css/styles.css">
 </head>
 <body class="bg-gradient d-flex align-items-center justify-content-center min-vh-100">
+    <!-- Container para mensajes de depuración -->
+    <div id="debugInfo" style="position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: lime; padding: 10px; border-radius: 5px; max-width: 400px; max-height: 200px; overflow: auto; font-family: monospace; font-size: 12px; z-index: 9999; display: none;">
+        <h4>Debug Info</h4>
+        <div id="debugContent"></div>
+    </div>
+
     <div class="container container-custom">
         <div class="text-center mb-4">
             <h1 class="text-white fw-bold">UTTS</h1>
@@ -40,40 +46,191 @@
                 <a href="signup.html" class="text-white fw-bold">Regístrate aquí</a>
             </p>
         </div>
+        
+        <!-- Botones de depuración -->
+        <div class="mt-3 text-center">
+            <button id="showDebug" class="btn btn-sm btn-info">Mostrar Depuración</button>
+            <button id="testRedirect" class="btn btn-sm btn-warning ms-2">Probar Redirección</button>
+            <button id="showDirectLink" class="btn btn-sm btn-success ms-2">Mostrar Enlace Directo</button>
+        </div>
     </div>
+
+    <!-- Elemento oculto para redirección -->
+    <div id="redirectContainer" style="display: none;"></div>
 
     <!-- Bootstrap 5 JS -->
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
     <script>
+        // Funciones de depuración
+        function logDebug(message) {
+            const debugContent = document.getElementById('debugContent');
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            debugContent.appendChild(logEntry);
+            debugContent.scrollTop = debugContent.scrollHeight;
+            console.log(`DEBUG: ${message}`);
+        }
+        
+        document.getElementById('showDebug').addEventListener('click', function() {
+            const debugInfo = document.getElementById('debugInfo');
+            debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Verificar si ya hay un usuario logueado
+        window.onload = function() {
+            logDebug("🔄 Página cargada - Verificando usuario");
+            try {
+                const user = localStorage.getItem('user');
+                logDebug(`LocalStorage user: ${user ? 'Encontrado' : 'No encontrado'}`);
+                
+                if (user) {
+                    logDebug("✅ Usuario encontrado en localStorage, intentando redirección");
+                    // Esperar un momento antes de redirigir
+                    setTimeout(() => tryRedirect(), 500);
+                } else {
+                    logDebug("ℹ️ No hay usuario guardado en localStorage");
+                }
+            } catch (error) {
+                logDebug(`❌ Error al verificar usuario: ${error.message}`);
+            }
+        };
+
         // Manejo del formulario de login
         document.getElementById('loginForm').addEventListener('submit', function (e) {
             e.preventDefault();
+            logDebug("📝 Formulario enviado - Procesando login");
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            logDebug(`📧 Email: ${email}`);
+
+            // Mostrar algún feedback visual para el usuario
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.innerHTML = 'Cargando...';
+            submitButton.disabled = true;
+
+            // Mostrar panel de depuración durante el proceso
+            document.getElementById('debugInfo').style.display = 'block';
 
             // Realizar la petición POST para hacer login
+            logDebug("🔄 Enviando petición al servidor");
             fetch('https://uttsmarket.bsite.net/api/users/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, password: password })
+                body: JSON.stringify({ email: email, password_hash: password })
             })
-            .then(response => response.json())
+            .then(response => {
+                logDebug(`📊 Respuesta del servidor: Status ${response.status}`);
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor: ' + response.status);
+                }
+                return response.json();
+            })
             .then(data => {
-                if (data.success) {
-                    console.log("Usuario logueado:", data.Value);
+                logDebug(`📄 Datos recibidos: ${JSON.stringify(data)}`);
+
+                // Verificación explícita del éxito de login - CORREGIDO para usar 'Success' con S mayúscula
+                if (data.Success === true) {
+                    logDebug("✅ Login exitoso");
+
                     // Guardar el usuario en localStorage
-                    localStorage.setItem('user', JSON.stringify(data.Value)); // Almacenar el usuario correctamente
-                    // Redirigir a la página de inicio
-                    window.location.href = "/www/page/main/index.html";
+                    try {
+                        if (typeof(Storage) !== "undefined") {
+                            // Asegurarnos de que localStorage está disponible
+                            localStorage.setItem('user', JSON.stringify(data.Value));
+                            const storedUser = localStorage.getItem('user');
+                            logDebug(`💾 Usuario guardado en localStorage: ${storedUser}`);
+                            
+                            // Redirección directa en lugar de recargar la página
+                            logDebug("🔄 Intentando redirección directa");
+                            tryRedirect();
+                        } else {
+                            logDebug("❌ El almacenamiento local no está disponible.");
+                            alert("Tu navegador no soporta almacenamiento local.");
+                        }
+                    } catch (storageError) {
+                        logDebug(`❌ Error al guardar en localStorage: ${storageError.message}`);
+                        alert("Error al guardar la sesión. Verifica que no tengas el almacenamiento privado activado.");
+                        // Restaurar el botón
+                        submitButton.innerHTML = originalButtonText;
+                        submitButton.disabled = false;
+                    }
                 } else {
-                    alert("Correo o contraseña incorrectos.");
+                    logDebug(`❌ Login fallido: ${data.Message || "Razón desconocida"}`);
+                    alert(data.Message || "Correo o contraseña incorrectos.");
+                    // Restaurar el botón
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.disabled = false;
                 }
             })
             .catch(error => {
-                console.error("Error al iniciar sesión:", error);
-                alert("Hubo un problema al iniciar sesión.");
+                logDebug(`❌ Error en fetch: ${error.message}`);
+                alert("Hubo un problema al iniciar sesión: " + error.message);
+                // Restaurar el botón
+                submitButton.innerHTML = originalButtonText;
+                submitButton.disabled = false;
             });
+        });
+        
+        // Detección de errores globales
+        window.onerror = function(message, source, lineno, colno, error) {
+            logDebug(`🛑 Error global: ${message} en ${source}:${lineno}`);
+            return true; // Previene el comportamiento predeterminado
+        };
+
+        // Función para redirigir a la página - MEJORADA
+        function tryRedirect() {
+            const possiblePaths = [
+                "../main/index.html",        // Ruta relativa hacia atrás
+                "/page/main/index.html",     // Ruta absoluta con /page
+                "/main/index.html",          // Ruta absoluta directa
+                "./main/index.html",         // Ruta relativa al directorio actual
+                "main/index.html"            // Ruta relativa simple
+            ];
+
+            logDebug(`🔄 Intentando redirecciones en el siguiente orden: ${possiblePaths.join(', ')}`);
+            
+            // Probamos la primera ruta
+            window.location.href = possiblePaths[0];
+            
+            // Si después de un tiempo seguimos en la misma página, probamos las siguientes rutas
+            setTimeout(() => {
+                for (let i = 1; i < possiblePaths.length; i++) {
+                    setTimeout(() => {
+                        logDebug(`Intentando redirigir a: ${possiblePaths[i]}`);
+                        window.location.href = possiblePaths[i];
+                    }, i * 300); // Intentamos cada 300ms
+                }
+            }, 500);
+        }
+
+        // Agregar funcionalidad a botones de prueba
+        document.getElementById('testRedirect').addEventListener('click', function() {
+            logDebug("🧪 Probando redirección manual");
+            tryRedirect();
+        });
+
+        document.getElementById('showDirectLink').addEventListener('click', function() {
+            const paths = [
+                "../main/index.html",
+                "/page/main/index.html",
+                "/main/index.html",
+                "./main/index.html",
+                "main/index.html"
+            ];
+            
+            let linksHtml = '<div style="background: white; color: black; padding: 10px; border-radius: 5px;">';
+            paths.forEach(path => {
+                linksHtml += `<a href="${path}" target="_blank" class="d-block mb-2">${path}</a>`;
+            });
+            linksHtml += '</div>';
+            
+            const container = document.getElementById('redirectContainer');
+            container.innerHTML = linksHtml;
+            container.style.display = 'block';
+            
+            logDebug("🔗 Mostrando enlaces de prueba");
         });
     </script>
 </body>
