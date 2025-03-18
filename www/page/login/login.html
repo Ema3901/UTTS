@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Login</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome para íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-    <!-- Archivo CSS externo -->
+    
+    <!-- Archivos CSS (sin modificar styles.css) -->
     <link rel="stylesheet" href="/www/css/auth-styles.css">
     <link rel="stylesheet" href="/www/css/styles.css">
 </head>
 <body class="bg-gradient d-flex align-items-center justify-content-center min-vh-100">
-    <!-- Container para mensajes de depuración -->
+    <!-- Container para mensajes de depuración (opcional) -->
     <div id="debugInfo" style="position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: lime; padding: 10px; border-radius: 5px; max-width: 400px; max-height: 200px; overflow: auto; font-family: monospace; font-size: 12px; z-index: 9999; display: none;">
         <h4>Debug Info</h4>
         <div id="debugContent"></div>
@@ -25,14 +27,16 @@
             <h1 class="text-white fw-bold">UTTS</h1>
             <p class="text-white">Encuentra y solicita todo lo que necesites</p>
         </div>
+
+        <!-- Formulario de login -->
         <form id="loginForm">
             <div class="mb-3 position-relative">
                 <i class="fas fa-envelope form-control-icon"></i>
-                <input type="email" class="form-control" id="email" placeholder="Email">
+                <input type="email" class="form-control" id="email" placeholder="Email" required>
             </div>
             <div class="mb-3 position-relative">
                 <i class="fas fa-lock form-control-icon"></i>
-                <input type="password" class="form-control" id="password" placeholder="Password">
+                <input type="password" class="form-control" id="password" placeholder="Password" required>
             </div>
             <div class="text-center mb-3">
                 <a href="forgot-password.html" class="text-white fw-bold">Olvidé mi contraseña</a>
@@ -41,197 +45,108 @@
                 <button type="submit" class="btn btn-primary-custom w-100">Inicia sesión</button>
             </div>
         </form>
+
         <div class="text-center mt-4">
-            <p class="text-white">No tienes cuenta? 
+            <p class="text-white">
+                ¿No tienes cuenta? 
                 <a href="signup.html" class="text-white fw-bold">Regístrate aquí</a>
             </p>
         </div>
         
-        <!-- Botones de depuración -->
+        <!-- Botones de depuración (opcionales) -->
         <div class="mt-3 text-center">
             <button id="showDebug" class="btn btn-sm btn-info">Mostrar Depuración</button>
-            <button id="testRedirect" class="btn btn-sm btn-warning ms-2">Probar Redirección</button>
-            <button id="showDirectLink" class="btn btn-sm btn-success ms-2">Mostrar Enlace Directo</button>
         </div>
     </div>
 
-    <!-- Elemento oculto para redirección -->
-    <div id="redirectContainer" style="display: none;"></div>
-
     <!-- Bootstrap 5 JS -->
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script para mostrar debug (opcional) -->
     <script>
-        // Funciones de depuración
+        const debugInfo = document.getElementById('debugInfo');
+        const debugContent = document.getElementById('debugContent');
+        
         function logDebug(message) {
-            const debugContent = document.getElementById('debugContent');
-            const logEntry = document.createElement('div');
-            logEntry.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
-            debugContent.appendChild(logEntry);
+            if (!debugContent) return;
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            debugContent.appendChild(entry);
             debugContent.scrollTop = debugContent.scrollHeight;
-            console.log(`DEBUG: ${message}`);
+            console.log("DEBUG:", message);
         }
-        
-        document.getElementById('showDebug').addEventListener('click', function() {
-            const debugInfo = document.getElementById('debugInfo');
-            debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
-        });
 
-        // Verificar si ya hay un usuario logueado
-        window.onload = function() {
-            logDebug("🔄 Página cargada - Verificando usuario");
-            try {
-                const user = localStorage.getItem('user');
-                logDebug(`LocalStorage user: ${user ? 'Encontrado' : 'No encontrado'}`);
-                
-                if (user) {
-                    logDebug("✅ Usuario encontrado en localStorage, intentando redirección");
-                    // Esperar un momento antes de redirigir
-                    setTimeout(() => tryRedirect(), 500);
-                } else {
-                    logDebug("ℹ️ No hay usuario guardado en localStorage");
-                }
-            } catch (error) {
-                logDebug(`❌ Error al verificar usuario: ${error.message}`);
+        document.getElementById('showDebug').addEventListener('click', () => {
+            if (debugInfo.style.display === 'none') {
+                debugInfo.style.display = 'block';
+            } else {
+                debugInfo.style.display = 'none';
             }
-        };
+        });
+    </script>
 
-        // Manejo del formulario de login
-        document.getElementById('loginForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            logDebug("📝 Formulario enviado - Procesando login");
+    <!-- Script principal: Doble llamada (login + datos completos) -->
+    <script>
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+        e.preventDefault();
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            logDebug(`📧 Email: ${email}`);
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
 
-            // Mostrar algún feedback visual para el usuario
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton.innerHTML;
-            submitButton.innerHTML = 'Cargando...';
-            submitButton.disabled = true;
+        logDebug("Formulario enviado, procesando login...");
+        logDebug(`Email: ${email}`);
 
-            // Mostrar panel de depuración durante el proceso
-            document.getElementById('debugInfo').style.display = 'block';
+        // Llamada POST /users/login
+        fetch('https://uttsmarket.bsite.net/api/users/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, password_hash: password })
+        })
+        .then(response => {
+            logDebug(`Respuesta de login: status ${response.status}`);
+            if (!response.ok) {
+                throw new Error('Error del servidor en login: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(loginData => {
+            logDebug(`Datos recibidos en login: ${JSON.stringify(loginData)}`);
 
-            // Realizar la petición POST para hacer login
-            logDebug("🔄 Enviando petición al servidor");
-            fetch('https://uttsmarket.bsite.net/api/users/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, password_hash: password })
-            })
-            .then(response => {
-                logDebug(`📊 Respuesta del servidor: Status ${response.status}`);
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor: ' + response.status);
-                }
-                return response.json();
-            })
-            .then(data => {
-                logDebug(`📄 Datos recibidos: ${JSON.stringify(data)}`);
+            if (loginData.Success === true) {
+                logDebug("Login exitoso.");
 
-                // Verificación explícita del éxito de login - CORREGIDO para usar 'Success' con S mayúscula
-                if (data.Success === true) {
-                    logDebug("✅ Login exitoso");
+                // Tomamos el user_id que viene en loginData.Value
+                const userId = loginData.Value.user_id;
+                logDebug(`User ID: ${userId}`);
 
-                    // Guardar el usuario en localStorage
-                    try {
-                        if (typeof(Storage) !== "undefined") {
-                            // Asegurarnos de que localStorage está disponible
-                            localStorage.setItem('user', JSON.stringify(data.Value));
-                            const storedUser = localStorage.getItem('user');
-                            logDebug(`💾 Usuario guardado en localStorage: ${storedUser}`);
-                            
-                            // Redirección directa en lugar de recargar la página
-                            logDebug("🔄 Intentando redirección directa");
-                            tryRedirect();
+                // Segunda petición: GET /users/read/:id
+                return fetch(`https://uttsmarket.bsite.net/api/users/read/${userId}`)
+                    .then(resp => resp.json())
+                    .then(userData => {
+                        logDebug(`Respuesta de read: ${JSON.stringify(userData)}`);
+                        
+                        // Este endpoint NO devuelve "Success", así que checamos si user_id existe
+                        if (userData.user_id) {
+                            // Guardamos en localStorage
+                            localStorage.setItem('user', JSON.stringify(userData));
+                            logDebug(`Usuario completo guardado en localStorage: ${JSON.stringify(userData)}`);
+
+                            // Redirigir a la página principal o la que necesites
+                            window.location.href = "/www/page/main/index.html";
                         } else {
-                            logDebug("❌ El almacenamiento local no está disponible.");
-                            alert("Tu navegador no soporta almacenamiento local.");
+                            alert("No se pudo obtener la información completa del usuario.");
                         }
-                    } catch (storageError) {
-                        logDebug(`❌ Error al guardar en localStorage: ${storageError.message}`);
-                        alert("Error al guardar la sesión. Verifica que no tengas el almacenamiento privado activado.");
-                        // Restaurar el botón
-                        submitButton.innerHTML = originalButtonText;
-                        submitButton.disabled = false;
-                    }
-                } else {
-                    logDebug(`❌ Login fallido: ${data.Message || "Razón desconocida"}`);
-                    alert(data.Message || "Correo o contraseña incorrectos.");
-                    // Restaurar el botón
-                    submitButton.innerHTML = originalButtonText;
-                    submitButton.disabled = false;
-                }
-            })
-            .catch(error => {
-                logDebug(`❌ Error en fetch: ${error.message}`);
-                alert("Hubo un problema al iniciar sesión: " + error.message);
-                // Restaurar el botón
-                submitButton.innerHTML = originalButtonText;
-                submitButton.disabled = false;
-            });
+                    });
+            } else {
+                // Si loginData.Success no es true, hay error de credenciales u otro
+                alert(loginData.Message || "Correo o contraseña incorrectos.");
+            }
+        })
+        .catch(error => {
+            logDebug(`Error en login: ${error.message}`);
+            alert("Error al iniciar sesión: " + error.message);
         });
-        
-        // Detección de errores globales
-        window.onerror = function(message, source, lineno, colno, error) {
-            logDebug(`🛑 Error global: ${message} en ${source}:${lineno}`);
-            return true; // Previene el comportamiento predeterminado
-        };
-
-        // Función para redirigir a la página - MEJORADA
-        function tryRedirect() {
-            const possiblePaths = [
-                "../main/index.html",        // Ruta relativa hacia atrás
-                "/page/main/index.html",     // Ruta absoluta con /page
-                "/main/index.html",          // Ruta absoluta directa
-                "./main/index.html",         // Ruta relativa al directorio actual
-                "main/index.html"            // Ruta relativa simple
-            ];
-
-            logDebug(`🔄 Intentando redirecciones en el siguiente orden: ${possiblePaths.join(', ')}`);
-            
-            // Probamos la primera ruta
-            window.location.href = possiblePaths[0];
-            
-            // Si después de un tiempo seguimos en la misma página, probamos las siguientes rutas
-            setTimeout(() => {
-                for (let i = 1; i < possiblePaths.length; i++) {
-                    setTimeout(() => {
-                        logDebug(`Intentando redirigir a: ${possiblePaths[i]}`);
-                        window.location.href = possiblePaths[i];
-                    }, i * 300); // Intentamos cada 300ms
-                }
-            }, 500);
-        }
-
-        // Agregar funcionalidad a botones de prueba
-        document.getElementById('testRedirect').addEventListener('click', function() {
-            logDebug("🧪 Probando redirección manual");
-            tryRedirect();
-        });
-
-        document.getElementById('showDirectLink').addEventListener('click', function() {
-            const paths = [
-                "../main/index.html",
-                "/page/main/index.html",
-                "/main/index.html",
-                "./main/index.html",
-                "main/index.html"
-            ];
-            
-            let linksHtml = '<div style="background: white; color: black; padding: 10px; border-radius: 5px;">';
-            paths.forEach(path => {
-                linksHtml += `<a href="${path}" target="_blank" class="d-block mb-2">${path}</a>`;
-            });
-            linksHtml += '</div>';
-            
-            const container = document.getElementById('redirectContainer');
-            container.innerHTML = linksHtml;
-            container.style.display = 'block';
-            
-            logDebug("🔗 Mostrando enlaces de prueba");
-        });
+    });
     </script>
 </body>
 </html>

@@ -94,20 +94,7 @@
                 }
             }
 
-            // Subir la nueva imagen
-            let imageUrl = user.profile_picture; // Mantener la actual si no hay cambio
 
-            const fileInput = document.getElementById("upload-photo");
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                uploadImageToGitHub(file).then(url => {
-                    imageUrl = url; // Actualizar la URL de la imagen con la respuesta de GitHub
-                    updateUserInDatabase(userId, username, phone, password, imageUrl); // Actualizar la base de datos
-                });
-            } else {
-                updateUserInDatabase(userId, username, phone, password, imageUrl);
-            }
-        }
 
         // Función para actualizar el perfil en la base de datos
         function updateUserInDatabase(userId, username, phone, password, imageUrl) {
@@ -140,6 +127,7 @@
                 alert(error.message);
             });
         }
+    }
     </script>
 
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>

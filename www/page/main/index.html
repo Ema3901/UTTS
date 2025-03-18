@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UTTS - Inicio</title>
+
+    <!-- Bootstrap 5 CSS -->
     <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Hoja de estilos principal (no modificar) -->
     <link rel="stylesheet" href="/www/css/styles.css">
+    
+    <!-- Hoja de estilos adicional para esta página -->
     <link rel="stylesheet" href="/www/css/home-styles.css">
 </head>
 <body>
@@ -17,7 +25,9 @@
     </nav>
 
     <div class="container">
-        <h2 id="username">Hola, Usuario</h2> <!-- Se actualizará dinámicamente -->
+        <!-- Se actualizará dinámicamente desde session.js si hay un usuario con username -->
+        <h2 id="username">Hola, Usuario</h2>
+
         <h1>¿Qué estás buscando el día de hoy?</h1>
         
         <div class="search-container">
@@ -34,39 +44,31 @@
         <div class="product-card" onclick="window.location.href='product.html';">
             <h3>Cafe de Gengar</h3>
             <img src="/www/img/food-placeholder1.jpg" alt="Cafe">
-            <p class="button" >Compra ahora →</p> 
+            <p class="button">Compra ahora →</p>
         </div>
         
         <h2>Productos recomendados</h2>
         <div class="recommended">
             <div class="product-card" onclick="window.location.href='product.html';">
-                <img src="/www/img/food-placeholder2.jpg" alt="Cafe">
+                <img src="/www/img/food-placeholder2.jpg" alt="Tacos">
                 <h3>Tacos de trompo</h3>
                 <p class="price">MX $45</p>
             </div>
             <div class="product-card" onclick="window.location.href='product.html';">
-                <img src="/www/img/food-placeholder3.jpg" alt="Cafe">
+                <img src="/www/img/food-placeholder3.jpg" alt="Cable">
                 <h3>CO2 - Cable</h3>
                 <p class="price">USD 25</p>
             </div>
         </div>
     </div>
-    
-    <script src="/www/js/session.js"></script>
-    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
-    <script src="/www/js/navbar.js"></script>
-    <script>
-        // Cargar el nombre del usuario dinámicamente
-        document.addEventListener("DOMContentLoaded", async function() {
-            const user = JSON.parse(localStorage.getItem("user"));
 
-            if (user) {
-                document.getElementById("username").textContent = `Hola, ${user.username}`;
-            } else {
-                document.getElementById("username").textContent = "Hola, Usuario";
-                window.location.href = "/www/page/login/login.html";
-            }
-        });
-    </script>
+    <!-- Archivo de control de sesión -->
+    <script src="/www/js/session.js"></script>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para navbar (si lo necesitas) -->
+    <script src="/www/js/navbar.js"></script>
 </body>
 </html>
