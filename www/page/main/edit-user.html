@@ -1,137 +1,236 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Perfil</title>
-    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="/www/css/styles.css">
-    <link rel="stylesheet" href="/www/css/edit-profile.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editar Perfil</title>
+
+  <!-- Bootstrap y fuentes -->
+  <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" href="/www/css/styles.css" />
+  <link rel="stylesheet" href="/www/css/edit-profile.css" />
+
+  <!-- Firebase v8.10.0 (compatible con tu sintaxis) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <script src="/www/js/firebase.js"></script>
+
+  <!-- Incluir el archivo spinner.css -->
+  <link rel="stylesheet" href="/www/css/spinner.css" />
+
+  <style>
+    .alert {
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-    <nav id="navbar-container"></nav>
-    
-    <div class="container">
-        <div class="profile-picture">
-            <img src="/www/img/user-placeholder.jpg" alt="Foto de perfil" id="profile-img">
-            <input type="file" id="upload-photo" accept="image/*" hidden>
-            <button class="button" onclick="document.getElementById('upload-photo').click();">Cambiar Foto</button>
-        </div>
-        <form id="editProfileForm">
-            <label for="username">Nombre de usuario</label>
-            <input type="text" id="username" placeholder="Ingresa tu nuevo nombre">
-            
-            <label for="email">Correo electrónico</label>
-            <input type="email" id="email" placeholder="Ingresa tu correo" disabled>
+  <!-- Spinner -->
+  <div id="spinner" class="spinner-container">
+    <div class="spinner"></div>
+  </div>
 
-            <!-- Campo de teléfono con validación -->
-            <label for="phone">Número telefónico</label>
-            <div class="phone-container">
-                <select id="phone-lada">
-                    <option value="+52">+52 México</option>
-                    <option value="+1">+1 USA/Canada</option>
-                    <option value="+44">+44 Reino Unido</option>
-                    <option value="+34">+34 España</option>
-                </select>
-                <input type="tel" id="phone-number" placeholder="1234567890" maxlength="10" pattern="\d{10}">
-            </div>
-            
-            <label for="password">Nueva contraseña</label>
-            <input type="password" id="password" placeholder="********">
-            
-            <label for="confirm-password">Confirmar contraseña</label>
-            <input type="password" id="confirm-password" placeholder="********">
-            
-            <button type="button" class="button" onclick="updateProfile()">Guardar cambios</button>
-        </form>
+  <nav id="navbar-container"></nav>
+
+  <div class="container">
+    <!-- Alerta visual -->
+    <div id="success-alert" class="alert alert-success d-none" role="alert">
+      ✅ Perfil actualizado correctamente.
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            loadUserData();
-        });
+    <div class="profile-picture">
+      <img src="/www/img/user-placeholder.jpg" alt="Foto de perfil" id="profile-img">
+      <input type="file" id="upload-photo" accept="image/*" hidden>
+      <button class="button" onclick="document.getElementById('upload-photo').click();">Cambiar Foto</button>
+      <button class="button btn-secondary" onclick="removeProfilePicture()">Quitar Foto</button>
+    </div>
 
-        function loadUserData() {
-            let user = JSON.parse(localStorage.getItem("user"));
-            if (user) {
-                document.getElementById("username").value = user.username;
-                document.getElementById("email").value = user.email;
-                document.getElementById("phone-number").value = user.phone_number || "";
-                document.getElementById("profile-img").src = user.profile_picture || '/www/img/user-placeholder.jpg';
-            } else {
-                alert("No hay sesión activa. Redirigiendo a login...");
-                window.location.href = "/www/page/login/login.html";
-            }
-        }
+    <form id="editProfileForm">
+      <label for="username">Nombre de usuario</label>
+      <input type="text" id="username" placeholder="Ingresa tu nuevo nombre">
 
-        function generateRandomName() {
-            const timestamp = new Date().getTime();
-            const randomNum = Math.floor(Math.random() * 1000000);
-            return `${timestamp}_${randomNum}.jpg`;
-        }
+      <label for="email">Correo electrónico</label>
+      <input type="email" id="email" placeholder="Ingresa tu correo" disabled>
 
-        function updateProfile() {
-            let user = JSON.parse(localStorage.getItem("user"));
-            let userId = user.user_id;
+      <label for="phone">Número telefónico</label>
+      <div class="phone-container">
+        <select id="phone-lada">
+          <option value="+52">+52 México</option>
+          <option value="+1">+1 USA/Canada</option>
+          <option value="+44">+44 Reino Unido</option>
+          <option value="+34">+34 España</option>
+        </select>
+        <input type="tel" id="phone-number" placeholder="1234567890" maxlength="10" pattern="\d{10}">
+      </div>
 
-            let username = document.getElementById("username").value.trim();
-            let phone = document.getElementById("phone-number").value.trim();
-            let password = document.getElementById("password").value.trim();
-            let confirmPassword = document.getElementById("confirm-password").value.trim();
+      <label for="password">Nueva contraseña</label>
+      <input type="password" id="password" placeholder="********">
 
-            // Validar número de teléfono (solo 10 dígitos)
-            if (phone && phone.length !== 10) {
-                alert("El número de teléfono debe tener 10 dígitos.");
-                return;
-            }
+      <label for="confirm-password">Confirmar contraseña</label>
+      <input type="password" id="confirm-password" placeholder="********">
 
-            // Validar contraseña (si se quiere cambiar)
-            if (password || confirmPassword) {
-                if (password !== confirmPassword) {
-                    alert("Las contraseñas no coinciden.");
-                    return;
-                }
-            }
+      <button type="button" class="button" onclick="updateProfile()">Guardar cambios</button>
+    </form>
+  </div>
 
+  <!-- Scripts adicionales -->
+  <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="/www/js/back-button.js"></script>
+  <script src="/www/js/navbar.js"></script>
 
+  <script>
+    const placeholderURL = "/www/img/user-placeholder.jpg";
+    let imageToRemove = false;
 
-        // Función para actualizar el perfil en la base de datos
-        function updateUserInDatabase(userId, username, phone, password, imageUrl) {
-            let userData = {
-                username: username || user.username,
-                email: user.email, // No se puede cambiar
-                phone_number: phone || user.phone_number,
-                password_hash: password || undefined,
-                profile_picture: imageUrl, // Actualizamos la URL de la imagen
-            };
+    document.addEventListener("DOMContentLoaded", function () {
+      loadUserData();
+    });
 
-            // Llamada a la API para actualizar el perfil del usuario
-            fetch(`https://uttsmarket.bsite.net/api/users/updateUser/${userId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(userData)
-            })
-            .then(response => {
-                if (response.status === 204) {
-                    alert("Perfil actualizado correctamente.");
-                    user.username = username || user.username;
-                    user.phone_number = phone || user.phone_number;
-                    user.profile_picture = imageUrl;
-                    localStorage.setItem("user", JSON.stringify(user));
-                } else {
-                    throw new Error("Hubo un problema al actualizar el perfil.");
-                }
-            })
-            .catch(error => {
-                alert(error.message);
-            });
-        }
+    function loadUserData() {
+      let user = JSON.parse(localStorage.getItem("user"));
+      if (user) {
+        document.getElementById("username").value = user.username;
+        document.getElementById("email").value = user.email;
+        document.getElementById("phone-number").value = user.phone_number || "";
+        document.getElementById("profile-img").src = user.profile_picture || placeholderURL;
+      } else {
+        alert("No hay sesión activa. Redirigiendo a login...");
+        window.location.href = "/www/page/login/login.html";
+      }
     }
-    </script>
 
-    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
-    <script src="/www/js/back-button.js"></script>
-    <script src="/www/js/navbar.js"></script>
+    function generateRandomName() {
+      const timestamp = new Date().getTime();
+      const randomNum = Math.floor(Math.random() * 1000000);
+      return `${timestamp}_${randomNum}.jpg`;
+    }
+
+    document.getElementById('upload-photo').addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.getElementById("profile-img").src = e.target.result;
+          imageToRemove = false;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function removeProfilePicture() {
+      document.getElementById("upload-photo").value = "";
+      document.getElementById("profile-img").src = placeholderURL;
+      imageToRemove = true;
+    }
+
+    function updateProfile() {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const userId = user.user_id;
+
+      let username = document.getElementById("username").value.trim();
+      let phone = document.getElementById("phone-number").value.trim();
+      let password = document.getElementById("password").value.trim();
+      let confirmPassword = document.getElementById("confirm-password").value.trim();
+      let profileImageFile = document.getElementById("upload-photo").files[0];
+
+      // Validaciones
+      if (!username) {
+        alert("El nombre de usuario no puede estar vacío.");
+        return;
+      }
+
+      if (!phone || phone.length !== 10 || !/^\d{10}$/.test(phone)) {
+        alert("El número telefónico debe tener exactamente 10 dígitos.");
+        return;
+      }
+
+      if (password || confirmPassword) {
+        if (password !== confirmPassword) {
+          alert("Las contraseñas no coinciden.");
+          return;
+        }
+      }
+
+      const imagenActual = document.getElementById("profile-img").src;
+      const imagenOriginal = user.profile_picture || placeholderURL;
+
+      const cambiosRealizados =
+        username !== user.username ||
+        phone !== user.phone_number ||
+        password.length > 0 ||
+        imageToRemove ||
+        profileImageFile ||
+        imagenActual !== imagenOriginal;
+
+      if (!cambiosRealizados) {
+        alert("No se detectaron cambios para actualizar.");
+        return;
+      }
+
+      if (imageToRemove) {
+        updateUserInDatabase(userId, username, phone, password, null);
+      } else if (profileImageFile) {
+        uploadImageToFirebase(profileImageFile, userId, username, phone, password);
+      } else {
+        updateUserInDatabase(userId, username, phone, password, user.profile_picture);
+      }
+    }
+
+    function uploadImageToFirebase(file, userId, username, phone, password) {
+      const storageRef = firebase.storage().ref();
+      const imageName = generateRandomName();
+      const imageRef = storageRef.child('profile_pictures/' + imageName);
+
+      const uploadTask = imageRef.put(file);
+
+      uploadTask.on('state_changed', function () {}, function (error) {
+        console.error("Error al subir la imagen:", error);
+        alert("No se pudo subir la imagen.");
+      }, function () {
+        uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+          updateUserInDatabase(userId, username, phone, password, downloadURL);
+        });
+      });
+    }
+
+    function updateUserInDatabase(userId, username, phone, password, imageUrl) {
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      const userData = {
+        username: username || user.username,
+        email: user.email,
+        phone_number: phone || user.phone_number,
+        password_hash: password || undefined,
+        profile_picture: imageUrl || null
+      };
+
+      fetch(`https://uttsmarket.bsite.net/api/users/updateUser/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData)
+      })
+      .then(response => {
+        if (response.status === 204) {
+          const alertBox = document.getElementById("success-alert");
+          alertBox.classList.remove("d-none");
+          setTimeout(() => alertBox.classList.add("d-none"), 3000);
+
+          user.username = userData.username;
+          user.phone_number = userData.phone_number;
+          user.profile_picture = imageUrl;
+          localStorage.setItem("user", JSON.stringify(user));
+        } else {
+          throw new Error("Error al actualizar el perfil.");
+        }
+      })
+      .catch(error => {
+        alert(error.message);
+      });
+    }
+  </script>
+  
+  <!-- Scripts -->
+  <script src="/www/js/spinner.js"></script>
 </body>
 </html>

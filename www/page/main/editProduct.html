@@ -1,112 +1,203 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agregar Producto</title>
-    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="/www/css/styles.css">
-    <link rel="stylesheet" href="/www/css/add-product-style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editar Producto</title>
+  <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" href="/www/css/styles.css" />
+  <link rel="stylesheet" href="/www/css/add-product-style.css" />
+  
+  <!-- Firebase v8.10.0 (compatible con tu sintaxis) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+  <script src="/www/js/firebase.js"></script>
+
+  <!-- Incluir el archivo spinner.css -->
+  <link rel="stylesheet" href="/www/css/spinner.css" />
+
+  <style>
+    .container {
+      max-width: 600px;
+      margin-top: 30px;
+      margin-bottom: 60px;
+    }
+    h2 {
+      font-weight: bold;
+      color: #0ACF83;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    form label {
+      font-weight: 500;
+      margin-top: 10px;
+    }
+    form input,
+    form textarea,
+    form select {
+      margin-bottom: 15px;
+    }
+    form button[type="submit"] {
+      width: 100%;
+      background-color: #0ACF83;
+      border: none;
+      font-weight: bold;
+    }
+    #deleteProductBtn {
+      width: 100%;
+      background-color: #dc3545;
+      color: white;
+      margin-top: 10px;
+      border: none;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-    <nav id="navbar-container"></nav>
+  <!-- Spinner -->
+  <div id="spinner" class="spinner-container">
+    <div class="spinner"></div>
+  </div>
 
-    <div class="container">
-        <h2>Editar Producto</h2>
+  <nav id="navbar-container"></nav>
 
-        <!-- Formulario de Agregar Producto -->
-        <form id="addProductForm">
-            <!-- Subir imágenes -->
-            <label for="productImages">Subir Imágenes (máximo 10):</label>
-            <input type="file" id="productImages" multiple accept="image/*" max="10">
+  <div class="container">
+    <h2>Editar Producto</h2>
+    <form id="editProductForm">
+      <label for="productImage">Imagen actual / nueva:</label>
+      <input type="file" id="productImage" accept="image/*">
 
-            <!-- Título del producto -->
-            <label for="productTitle">Título del Producto:</label>
-            <input type="text" id="productTitle" placeholder="Escribe el título del producto" required>
+      <label for="productName">Nombre del Producto:</label>
+      <input type="text" id="productName" class="form-control" required>
 
-            <!-- Descripción del producto -->
-            <label for="productDescription">Descripción:</label>
-            <textarea id="productDescription" rows="4" placeholder="Escribe una descripción del producto" required></textarea>
+      <label for="productDescription">Descripción:</label>
+      <textarea id="productDescription" class="form-control" rows="3" required></textarea>
 
-            <!-- Especificaciones Técnicas -->
-            <h3>Especificaciones Técnicas</h3>
-            <table id="specsTable">
-                <thead>
-                    <tr>
-                        <th>Característica</th>
-                        <th>Valor</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Aquí se agregarán dinámicamente las filas -->
-                </tbody>
-            </table>
-            <button type="button" onclick="addSpecRow()">Agregar Especificación</button>
+      <label for="productPrice">Precio:</label>
+      <input type="number" id="productPrice" class="form-control" min="1" required>
 
-            <!-- Botón de Guardar Producto -->
-            <button type="submit">Guardar Producto</button>
-        </form>
-    </div>
+      <label for="productCategory">Categoría:</label>
+      <select id="productCategory" class="form-control" required>
+        <option value="1">Comida</option>
+        <option value="2">Tecnología</option>
+        <option value="3">Ropa</option>
+      </select>
 
-    <!-- Pop-up de éxito -->
-    <div id="successModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeSuccessModal()">&times;</span>
-            <h2>Producto Guardado con Éxito</h2>
-            <p>El producto ha sido guardado correctamente.</p>
-            <button onclick="redirectBack()">Volver a la Tienda</button>
-        </div>
-    </div>
+      <label for="productStock">Stock:</label>
+      <input type="number" id="productStock" class="form-control" min="1" max="99" maxlength="2" required oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2)" />
 
-    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
-    <script src="/www/js/add-product.js"></script>
-    <script>
-        // Función para agregar una nueva fila en la tabla de especificaciones
-        function addSpecRow() {
-            const table = document.querySelector("#specsTable tbody");
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td><input type="text" placeholder="Ej. Material" required></td>
-                <td><input type="text" placeholder="Ej. Acero inoxidable" required></td>
-                <td><button type="button" class="remove-row">X</button></td>
-            `;
-            table.appendChild(row);
+      <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+      <button type="button" id="deleteProductBtn">Eliminar Producto</button>
+    </form>
+  </div>
 
-            // Funcionalidad para eliminar fila
-            row.querySelector(".remove-row").addEventListener("click", function () {
-                row.remove();
-            });
+  <script>
+    const productId = new URLSearchParams(window.location.search).get("product_id");
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    async function cargarProducto() {
+      try {
+        showSpinner(); // Mostrar el spinner al cargar el producto
+        const res = await fetch(`https://uttsmarket.bsite.net/api/products/read/${productId}`);
+        const producto = await res.json();
+
+        if (!producto || !producto.product_id) throw new Error("Producto no encontrado");
+
+        document.getElementById("productName").value = producto.product_name;
+        document.getElementById("productDescription").value = producto.description;
+        document.getElementById("productPrice").value = producto.price;
+        document.getElementById("productCategory").value = producto.category_id;
+        document.getElementById("productStock").value = producto.stock;
+
+        window.originalProduct = producto;
+      } catch (error) {
+        console.error("Error al cargar producto:", error);
+        alert("Error al cargar el producto");
+      } finally {
+        hideSpinner(); // Ocultar el spinner una vez cargado el producto
+      }
+    }
+
+    async function actualizarProducto(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("productName").value.trim();
+      const desc = document.getElementById("productDescription").value.trim();
+      const price = parseFloat(document.getElementById("productPrice").value);
+      const category = parseInt(document.getElementById("productCategory").value);
+      const stock = parseInt(document.getElementById("productStock").value);
+      const imageFile = document.getElementById("productImage").files[0];
+
+      try {
+        let imageUrl = window.originalProduct.thumbnail;
+        if (imageFile) {
+          const imageName = `${Date.now()}_${Math.floor(Math.random() * 10000)}.jpg`;
+          const ref = firebase.storage().ref().child(`product_images/${imageName}`);
+          await ref.put(imageFile);
+          imageUrl = await ref.getDownloadURL();
         }
 
-        // Función para manejar el envío del formulario
-        document.getElementById("addProductForm").addEventListener("submit", function (event) {
-            event.preventDefault(); // Prevenir envío tradicional del formulario
+        const body = {
+          product_id: parseInt(productId),
+          product_name: name,
+          description: desc,
+          price: price,
+          stock: stock,
+          category_id: category,
+          is_for_trade: false,
+          status: "available",
+          average_rating: 3,
+          thumbnail: imageUrl
+        };
 
-            // Aquí agregarías la lógica para guardar el producto (enviar a backend, etc.)
-
-            // Mostrar el modal de éxito
-            openSuccessModal();
+        const res = await fetch(`https://uttsmarket.bsite.net/api/products/update/${productId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
         });
 
-        // Función para abrir el modal de éxito
-        function openSuccessModal() {
-            document.getElementById("successModal").style.display = "flex";
+        if (res.ok) {
+          alert("Producto actualizado correctamente");
+          window.location.href = "edit-store.html";
+        } else {
+          throw new Error("No se pudo actualizar el producto");
         }
+      } catch (err) {
+        console.error("Error:", err);
+        alert("Error al actualizar producto");
+      }
+    }
 
-        // Función para cerrar el modal de éxito
-        function closeSuccessModal() {
-            document.getElementById("successModal").style.display = "none";
+    async function eliminarProducto() {
+      if (!confirm("¿Estás seguro que deseas eliminar este producto?")) return;
+
+      try {
+        const res = await fetch(`https://uttsmarket.bsite.net/api/products/delete/${productId}`, {
+          method: "DELETE"
+        });
+
+        if (res.ok) {
+          alert("Producto eliminado correctamente");
+          window.location.href = "edit-store.html";
+        } else {
+          throw new Error("No se pudo eliminar el producto");
         }
+      } catch (err) {
+        console.error("Error:", err);
+        alert("Error al eliminar producto");
+      }
+    }
 
-        // Función para redirigir a la página anterior
-        function redirectBack() {
-            window.history.back(); // Redirige a la página anterior
-        }
-    </script>
+    document.getElementById("editProductForm").addEventListener("submit", actualizarProducto);
+    document.getElementById("deleteProductBtn").addEventListener("click", eliminarProducto);
 
-    <script src="/www/js/back-button.js"></script>
-    <script src="/www/js/navbar.js"></script>
+    document.addEventListener("DOMContentLoaded", cargarProducto);
+  </script>
+
+  <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="/www/js/back-button.js"></script>
+  <script src="/www/js/navbar.js"></script>
+  <script src="/www/js/spinner.js"></script>
 </body>
 </html>

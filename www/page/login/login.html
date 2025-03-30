@@ -11,16 +11,11 @@
     <!-- FontAwesome para íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
-    <!-- Archivos CSS (sin modificar styles.css) -->
+    <!-- Archivos CSS -->
     <link rel="stylesheet" href="/www/css/auth-styles.css">
     <link rel="stylesheet" href="/www/css/styles.css">
 </head>
 <body class="bg-gradient d-flex align-items-center justify-content-center min-vh-100">
-    <!-- Container para mensajes de depuración (opcional) -->
-    <div id="debugInfo" style="position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: lime; padding: 10px; border-radius: 5px; max-width: 400px; max-height: 200px; overflow: auto; font-family: monospace; font-size: 12px; z-index: 9999; display: none;">
-        <h4>Debug Info</h4>
-        <div id="debugContent"></div>
-    </div>
 
     <div class="container container-custom">
         <div class="text-center mb-4">
@@ -52,40 +47,12 @@
                 <a href="signup.html" class="text-white fw-bold">Regístrate aquí</a>
             </p>
         </div>
-        
-        <!-- Botones de depuración (opcionales) -->
-        <div class="mt-3 text-center">
-            <button id="showDebug" class="btn btn-sm btn-info">Mostrar Depuración</button>
-        </div>
     </div>
 
     <!-- Bootstrap 5 JS -->
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
-    
-    <!-- Script para mostrar debug (opcional) -->
-    <script>
-        const debugInfo = document.getElementById('debugInfo');
-        const debugContent = document.getElementById('debugContent');
-        
-        function logDebug(message) {
-            if (!debugContent) return;
-            const entry = document.createElement('div');
-            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            debugContent.appendChild(entry);
-            debugContent.scrollTop = debugContent.scrollHeight;
-            console.log("DEBUG:", message);
-        }
 
-        document.getElementById('showDebug').addEventListener('click', () => {
-            if (debugInfo.style.display === 'none') {
-                debugInfo.style.display = 'block';
-            } else {
-                debugInfo.style.display = 'none';
-            }
-        });
-    </script>
-
-    <!-- Script principal: Doble llamada (login + datos completos) -->
+    <!-- Script principal: login + obtener usuario y tienda -->
     <script>
     document.getElementById('loginForm').addEventListener('submit', function (e) {
         e.preventDefault();
@@ -93,57 +60,44 @@
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value.trim();
 
-        logDebug("Formulario enviado, procesando login...");
-        logDebug(`Email: ${email}`);
-
-        // Llamada POST /users/login
         fetch('https://uttsmarket.bsite.net/api/users/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email, password_hash: password })
         })
         .then(response => {
-            logDebug(`Respuesta de login: status ${response.status}`);
             if (!response.ok) {
                 throw new Error('Error del servidor en login: ' + response.status);
             }
             return response.json();
         })
         .then(loginData => {
-            logDebug(`Datos recibidos en login: ${JSON.stringify(loginData)}`);
-
             if (loginData.Success === true) {
-                logDebug("Login exitoso.");
-
-                // Tomamos el user_id que viene en loginData.Value
                 const userId = loginData.Value.user_id;
-                logDebug(`User ID: ${userId}`);
 
-                // Segunda petición: GET /users/read/:id
                 return fetch(`https://uttsmarket.bsite.net/api/users/read/${userId}`)
                     .then(resp => resp.json())
                     .then(userData => {
-                        logDebug(`Respuesta de read: ${JSON.stringify(userData)}`);
-                        
-                        // Este endpoint NO devuelve "Success", así que checamos si user_id existe
                         if (userData.user_id) {
-                            // Guardamos en localStorage
-                            localStorage.setItem('user', JSON.stringify(userData));
-                            logDebug(`Usuario completo guardado en localStorage: ${JSON.stringify(userData)}`);
+                            return fetch(`https://uttsmarket.bsite.net/api/stores/readByUser/${userData.user_id}`)
+                                .then(storeResp => storeResp.json())
+                                .then(storeData => {
+                                    if (storeData && storeData.length > 0) {
+                                        localStorage.setItem('store', JSON.stringify(storeData[0]));
+                                    }
 
-                            // Redirigir a la página principal o la que necesites
-                            window.location.href = "/www/page/main/index.html";
+                                    localStorage.setItem('user', JSON.stringify(userData));
+                                    window.location.href = "/www/index.html";
+                                });
                         } else {
                             alert("No se pudo obtener la información completa del usuario.");
                         }
                     });
             } else {
-                // Si loginData.Success no es true, hay error de credenciales u otro
                 alert(loginData.Message || "Correo o contraseña incorrectos.");
             }
         })
         .catch(error => {
-            logDebug(`Error en login: ${error.message}`);
             alert("Error al iniciar sesión: " + error.message);
         });
     });

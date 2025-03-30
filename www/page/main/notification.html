@@ -10,11 +10,17 @@
     <link rel="stylesheet" href="/www/css/user-style.css">
     <link rel="stylesheet" href="/www/css/notification-style.css">
 
+    <!-- Incluir el archivo spinner.css -->
+    <link rel="stylesheet" href="/www/css/spinner.css" />
 </head>
 <body>
+    <!-- Spinner -->
+    <div id="spinner" class="spinner-container">
+        <div class="spinner"></div>
+    </div>
+
     <nav id="navbar-container"></nav>
 
-    
     <div class="container">
         <h3 class="text-center mt-4">Tus Notificaciones</h3>
         <div class="notification-list">
@@ -29,9 +35,24 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="/www/js/back-button.js"></script>
     <script src="/www/js/navbar.js"></script>
 
+    <!-- Incluir spinner.js -->
+    <script src="/www/js/spinner.js"></script>
+
+    <script>
+      // Mostrar el spinner mientras se carga el contenido
+      document.addEventListener("DOMContentLoaded", function() {
+        showSpinner();  // Mostrar el spinner
+
+        // Simulación de carga de notificaciones (puedes modificar esta parte para cargar las notificaciones desde tu base de datos)
+        setTimeout(() => {
+          hideSpinner();  // Ocultar el spinner una vez que se cargue el contenido
+        }, 2000);  // Simulando 2 segundos de carga
+      });
+    </script>
 </body>
 </html>

@@ -1,61 +1,220 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configurar Tienda - UTTS</title>
-    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="/www/css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configurar Tienda - UTTS</title>
+  <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" href="/www/css/styles.css" />
+  <link rel="stylesheet" href="/www/css/create-store-styles.css" />
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+  <script src="/www/js/firebase.js"></script>
+
+  <!-- Incluir el archivo spinner.css -->
+  <link rel="stylesheet" href="/www/css/spinner.css" />
+  
+  <style>
+    :root { --utt-green: #0ACF83; }
+    .container { max-width: 600px; margin-top: 20px; margin-bottom: 40px; }
+    .card { padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
+    h1 { font-size: 26px; font-weight: bold; margin-bottom: 20px; text-align: center; color: var(--utt-green); }
+    h5 { color: var(--utt-green); font-weight: 600; }
+    .form-label { font-weight: 500; color: #333; }
+    .card i { color: var(--utt-green); margin-right: 6px; }
+    .btn-primary { background-color: var(--utt-green); border-color: var(--utt-green); font-weight: bold; }
+    .btn-primary:hover { background-color: #09b673; border-color: #09b673; }
+    form { margin-bottom: 50px; }
+
+    .toast-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .toast-message {
+      background: white;
+      padding: 30px 50px;
+      border-radius: 12px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.3);
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--utt-green);
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
+  <!-- Spinner -->
+  <div id="spinner" class="spinner-container">
+    <div class="spinner"></div>
+  </div>
 
-    <nav class="navbar">
-        <a><i class="fa fa-chevron-left" onclick="window.location.href='user.html';"></i></a>
-        <img src="/www/img/logo.png" alt="Logo" width="100" onclick="window.location.href='index.html';">
-        <img src="/www/img/user-placeholder.jpg" alt="Usuario" width="40" onclick="window.location.href='user.html';">
-    </nav>
+  <nav class="navbar">
+    <a><i class="fa fa-chevron-left" onclick="window.location.href='user.html';"></i></a>
+    <img src="/www/img/logo.png" alt="Logo" width="100" onclick="window.location.href='index.html';" />
+    <img src="/www/img/user-placeholder.jpg" alt="Usuario" width="40" onclick="window.location.href='user.html';" />
+  </nav>
 
-    <div class="container">
-        <h1>Configura tu tienda</h1>
-        <form action="edit-store.html" method="POST">
-            <!-- Nombre de la tienda -->
-            <div class="mb-3">
-                <label for="storeName" class="form-label">Nombre de la tienda</label>
-                <input type="text" class="form-control" id="storeName" name="storeName" required>
-            </div>
+  <div class="container">
+    <h1>Configura tu tienda</h1>
+    <form id="storeForm" enctype="multipart/form-data">
+      <div class="card">
+        <h5><i class="fa fa-store"></i> Información de la Tienda</h5>
+        <div class="mb-3">
+          <label for="storeName" class="form-label">Nombre de la tienda</label>
+          <input type="text" class="form-control" id="storeName" required />
+        </div>
+        <div class="mb-3">
+          <label for="storeDescription" class="form-label">Descripción</label>
+          <textarea class="form-control" id="storeDescription" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="storeBanner" class="form-label">Banner de la tienda</label>
+          <input type="file" class="form-control" id="storeBanner" accept="image/*" required />
+        </div>
+      </div>
 
-            <!-- Producto -->
-            <div class="mb-3">
-                <label for="productName" class="form-label">Nombre del producto</label>
-                <input type="text" class="form-control" id="productName" name="productName" required>
-            </div>
+      <div class="card">
+        <h5><i class="fa fa-box"></i> Primer Producto</h5>
+        <div class="mb-3">
+          <label for="productName" class="form-label">Nombre del producto</label>
+          <input type="text" class="form-control" id="productName" required />
+        </div>
+        <div class="mb-3">
+          <label for="productPrice" class="form-label">Precio</label>
+          <input type="number" class="form-control" id="productPrice" required />
+        </div>
+        <div class="mb-3">
+          <label for="productDescription" class="form-label">Descripción</label>
+          <textarea class="form-control" id="productDescription" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="productCategory" class="form-label">Categoría</label>
+          <select class="form-control" id="productCategory" required>
+            <option value="1">Comida</option>
+            <option value="2">Tecnología</option>
+            <option value="3">Ropa</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="productStock" class="form-label">Stock</label>
+          <input type="number" class="form-control" id="productStock" min="1" max="99" maxlength="2" required oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2)" />
+        </div>
+        <div class="mb-3">
+          <label for="productImage" class="form-label">Imagen</label>
+          <input type="file" class="form-control" id="productImage" accept="image/*" required />
+        </div>
+      </div>
 
-            <div class="mb-3">
-                <label for="productPrice" class="form-label">Precio del producto</label>
-                <input type="number" class="form-control" id="productPrice" name="productPrice" required>
-            </div>
+      <button type="submit" class="btn btn-primary w-100">Crear tienda</button>
+    </form>
+  </div>
 
-            <div class="mb-3">
-                <label for="productDescription" class="form-label">Descripción del producto</label>
-                <textarea class="form-control" id="productDescription" name="productDescription" rows="3" required></textarea>
-            </div>
+  <div id="toastOverlay" class="toast-overlay" style="display: none;">
+    <div class="toast-message">¡Tienda y producto creados con éxito!</div>
+  </div>
 
-            <div class="mb-3">
-                <label for="productImage" class="form-label">Imagen del producto</label>
-                <input type="file" class="form-control" id="productImage" name="productImage" required>
-            </div>
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) window.location.href = "/www/page/login/login.html";
 
-            <!-- Banner de la tienda -->
-            <div class="mb-3">
-                <label for="storeBanner" class="form-label">Banner de la tienda</label>
-                <input type="file" class="form-control" id="storeBanner" name="storeBanner" required>
-            </div>
+    const generateImageName = () => `${Date.now()}_${Math.floor(Math.random() * 10000)}.jpg`;
 
-            <button type="submit" class="btn btn-primary">Crear tienda</button>
-        </form>
-    </div>
+    const uploadImage = async (file, path) => {
+      const ref = firebase.storage().ref().child(path);
+      await ref.put(file);
+      return await ref.getDownloadURL();
+    };
 
-    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    function showToastOverlay() {
+      const overlay = document.getElementById("toastOverlay");
+      overlay.style.display = "flex";
+      setTimeout(() => {
+        overlay.style.display = "none";
+        window.location.href = "user.html";
+      }, 10000);
+    }
+
+    document.getElementById("storeForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const storeNameInput = document.getElementById("storeName").value.trim();
+      const storeDescriptionInput = document.getElementById("storeDescription").value.trim();
+      const storeBannerFile = document.getElementById("storeBanner").files[0];
+
+      const productNameInput = document.getElementById("productName").value.trim();
+      const productPriceInput = parseFloat(document.getElementById("productPrice").value);
+      const productDescriptionInput = document.getElementById("productDescription").value.trim();
+      const categoryId = parseInt(document.getElementById("productCategory").value);
+      const stock = parseInt(document.getElementById("productStock").value);
+      const productImageFile = document.getElementById("productImage").files[0];
+
+      if (!storeNameInput || !storeDescriptionInput || !storeBannerFile || !productNameInput || !productPriceInput || !productDescriptionInput || !productImageFile || !stock) {
+        return alert("Por favor, completa todos los campos.");
+      }
+
+      try {
+        const bannerUrl = await uploadImage(storeBannerFile, `store_banners/${generateImageName()}`);
+
+        const storeResponse = await fetch("https://uttsmarket.bsite.net/api/stores/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: user.user_id,
+            store_name: storeNameInput,
+            description: storeDescriptionInput,
+            average_rating: 0,
+            banner_img: bannerUrl
+          })
+        });
+
+        const storeData = await storeResponse.json();
+        console.log("📦 Respuesta de creación de tienda:", storeData);
+
+        const storesRes = await fetch(`https://uttsmarket.bsite.net/api/stores/readByUser/${user.user_id}`);
+        const stores = await storesRes.json();
+        const storeId = stores[stores.length - 1]?.store_id;
+
+        if (!storeId) throw new Error("No se pudo obtener el ID de la tienda creada");
+
+        const productUrl = await uploadImage(productImageFile, `product_images/${generateImageName()}`);
+
+        await fetch("https://uttsmarket.bsite.net/api/products/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            store_id: storeId,
+            product_name: productNameInput,
+            description: productDescriptionInput,
+            price: productPriceInput,
+            category_id: categoryId,
+            stock: stock,
+            status: "available",
+            is_for_trade: false,
+            average_rating: 3,
+            thumbnail: productUrl
+          })
+        });
+
+        showToastOverlay();
+
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Error: " + error.message);
+      }
+    });
+  </script>
+
+  <!-- Scripts -->
+  <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="/www/js/spinner.js"></script>
 </body>
 </html>

@@ -1,120 +1,272 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrar Productos</title>
-    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="/www/css/styles.css">
-    <link rel="stylesheet" href="/www/css/store-styles.css">
-    <link rel="stylesheet" href="/www/css/user-store-style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administrar Tienda</title>
+  <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" href="/www/css/styles.css" />
+  <link rel="stylesheet" href="/www/css/store-styles.css" />
+  
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+  <script src="/www/js/firebase.js"></script>
+  
+  <!-- Incluir el archivo spinner.css -->
+  <link rel="stylesheet" href="/www/css/spinner.css" />
+  
+  <style>
+    :root {
+      --utt-green: #0ACF83;
+    }
+    .store-name {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      padding: 12px 10px 0;
+      color: var(--utt-green);
+    }
+    .product-card img {
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .product-card h3 {
+      font-size: 16px;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+    .product-card .price {
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .edit-button {
+      padding: 5px 10px;
+      font-size: 14px;
+      background: #fff;
+      border: 1px solid var(--utt-green);
+      color: var(--utt-green);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .edit-button i {
+      margin-right: 4px;
+    }
+    .add-product-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      color: var(--utt-green);
+    }
+    .plus-icon {
+      font-size: 32px;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+    }
+    .modal-content h2 {
+      color: var(--utt-green);
+    }
+    .modal-content input[type="text"],
+    .modal-content input[type="file"] {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .modal-content button {
+      background-color: var(--utt-green);
+      color: white;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+    }
+  </style>
 </head>
 <body>
-    <nav id="navbar-container"></nav>
+  <!-- Spinner -->
+  <div id="spinner" class="spinner-container">
+    <div class="spinner"></div>
+  </div>
 
-    <div class="store-header">
-        <div class="store-name">Tacos de MAURICIO</div>
-        <div class="banner">
-            <img src="/www/img/banner-store.jpeg" alt="Banner de la tienda" class="img-fluid rounded">
-        </div>
+  <nav id="navbar-container"></nav>
+
+  <div class="store-header">
+    <div class="store-name" id="store-name">Cargando tienda...</div>
+    <div class="banner">
+      <img id="store-banner" src="" alt="Banner de la tienda" class="img-fluid rounded">
     </div>
+  </div>
 
-        <div class="product-grid" id="productList">
-            <div class="product-card">
-                <img src="/www/img/food-placeholder1.jpg" alt="Producto 1">
-                <h3>Producto 1</h3>
-                <p class="price">MX $45</p>
-                <button class="edit-button" onclick="window.location.href='editProduct.html';"><i class="fa fa-edit"></i> Editar</button>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder2.jpg" alt="Producto 2">
-                <h3>Producto 2</h3>
-                <p class="price">MX $50</p>
-                <button class="edit-button" onclick="window.location.href='editProduct.html';"><i class="fa fa-edit"></i> Editar</button>
-            </div>
-            <div class="product-card add-product-card">
-                <a href="addProduct.html">
-                    <div class="plus-icon">
-                        <i class="fa fa-plus"></i>
-                    </div>
-                    <h3>Agregar Producto</h3>
-                </a>
-            </div>
-            
+  <div class="product-grid" id="productList">
+    <!-- Productos serán cargados dinámicamente -->
+    <div class="product-card add-product-card">
+      <a href="addProduct.html">
+        <div class="plus-icon">
+          <i class="fa fa-plus"></i>
         </div>
+        <h3>Agregar Producto</h3>
+      </a>
     </div>
+  </div>
 
-    <!-- Formulario emergente para editar tienda -->
-    <div id="editStoreForm" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeEditStoreForm()">&times;</span>
-            <h2>Editar Tienda</h2>
-            <form id="editStoreFormContent">
+  <!-- Formulario emergente para editar tienda -->
+  <div id="editStoreForm" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeEditStoreForm()">&times;</span>
+      <h2>Editar Tienda</h2>
+      <form id="editStoreFormContent">
+        <label for="storeBannerInput">Nuevo Banner</label>
+        <input type="file" id="storeBannerInput" accept="image/*">
 
+        <label for="storeNameInput">Nombre de la tienda</label>
+        <input type="text" id="storeNameInput">
 
-                <label for="storeBanner">Banner de la tienda</label>
-                <input type="file" id="storeBannerInput" accept="image/*">
-
-                <label for="storeNameInput">Nombre de la tienda</label>
-                <input type="text" id="storeNameInput" value="TIENDA MAURICIO RODRIGUEZ">
-
-                <button type="button" onclick="updateStoreDetails()">Guardar cambios</button>
-            </form>
-        </div>
+        <button type="button" onclick="updateStoreDetails()">Guardar cambios</button>
+      </form>
     </div>
+  </div>
 
-    <!-- Botón flotante de edición -->
-    <button class="floating-button" onclick="openEditStoreForm()">
-        <i class="fa fa-edit"></i>
-    </button>
+  <button class="floating-button" onclick="openEditStoreForm()">
+    <i class="fa fa-edit"></i>
+  </button>
 
-    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
-    <script src="/www/js/admin-products.js"></script>
-    <script>
-        // Funciones para el formulario de edición de tienda
-        function openEditStoreForm() {
-            const modal = document.getElementById("editStoreForm");
-            modal.style.display = "flex";
+  <script>
+    async function cargarProductosDeTienda(storeId) {
+      try {
+        const res = await fetch(`https://uttsmarket.bsite.net/api/products/read`);
+        const productos = await res.json();
+        const container = document.getElementById("productList");
+
+        const productosFiltrados = productos.filter(p => p.store_id == storeId);
+        console.log("📦 Productos filtrados por tienda:", productosFiltrados);
+
+        productosFiltrados.forEach(producto => {
+          console.log("🔍 Revisando producto:", producto);
+          const imageUrl = producto.thumbnail && producto.thumbnail.startsWith("http")
+            ? producto.thumbnail
+            : "/www/img/food-placeholder1.jpg";
+
+          const card = document.createElement("div");
+          card.className = "product-card";
+          card.innerHTML = `
+            <img src="${imageUrl}" alt="${producto.product_name}">
+            <h3>${producto.product_name}</h3>
+            <p class="price">MX $${producto.price}</p>
+            <button class="edit-button" onclick="window.location.href='editProduct.html?product_id=${producto.product_id}'">
+              <i class="fa fa-edit"></i> Editar
+            </button>
+          `;
+          container.insertBefore(card, container.lastElementChild);
+        });
+      } catch (error) {
+        console.error("Error al cargar productos:", error);
+      }
+    }
+
+    function mostrarInfoDeTienda(store) {
+      document.getElementById("store-name").innerText = store.store_name;
+      document.getElementById("storeNameInput").value = store.store_name;
+      document.getElementById("store-banner").src = store.banner_img || "/www/img/banner-store.jpeg";
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) return window.location.href = "/www/page/login/login.html";
+
+      try {
+        const res = await fetch(`https://uttsmarket.bsite.net/api/stores/readByUser/${user.user_id}`);
+        const data = await res.json();
+        const store = Array.isArray(data) ? data[0] : data;
+
+        if (!store?.store_id) throw new Error("Tienda no encontrada.");
+
+        window.currentStore = store;
+        mostrarInfoDeTienda(store);
+        cargarProductosDeTienda(store.store_id);
+      } catch (err) {
+        console.error("Error al obtener tienda:", err);
+      }
+    });
+
+    function openEditStoreForm() {
+      document.getElementById("editStoreForm").style.display = "flex";
+    }
+
+    function closeEditStoreForm() {
+      document.getElementById("editStoreForm").style.display = "none";
+    }
+
+    async function updateStoreDetails() {
+      const storeName = document.getElementById("storeNameInput").value.trim();
+      const bannerFile = document.getElementById("storeBannerInput").files[0];
+      const storeId = window.currentStore?.store_id;
+      if (!storeId) return alert("Tienda no encontrada.");
+
+      try {
+        let bannerUrl = window.currentStore.banner_img;
+
+        if (bannerFile) {
+          const imageName = `${Date.now()}_${Math.floor(Math.random() * 10000)}.jpg`;
+          const ref = firebase.storage().ref().child(`store_banners/${imageName}`);
+          await ref.put(bannerFile);
+          bannerUrl = await ref.getDownloadURL();
         }
 
-        function closeEditStoreForm() {
-            const modal = document.getElementById("editStoreForm");
-            modal.style.display = "none";
+        const body = {
+          store_id: storeId,
+          store_name: storeName,
+          description: window.currentStore.description,
+          average_rating: window.currentStore.average_rating,
+          banner_img: bannerUrl,
+          user_id: window.currentStore.user_id || JSON.parse(localStorage.getItem("user"))?.user_id
+        };
+
+        const res = await fetch(`https://uttsmarket.bsite.net/api/stores/update/${storeId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        if (res.ok) {
+          alert("Tienda actualizada correctamente");
+          location.reload();
+        } else {
+          throw new Error("No se pudo actualizar la tienda");
         }
+      } catch (err) {
+        console.error("Error al actualizar tienda:", err);
+        alert("Hubo un error al guardar los cambios");
+      }
+    }
+  </script>
 
-        function updateStoreDetails() {
-            // Obtener los nuevos valores del formulario
-            const storeName = document.getElementById("storeNameInput").value;
-            const storeImage = document.getElementById("storeImage").files[0];
-            const storeBanner = document.getElementById("storeBannerInput").files[0];
-
-            // Actualizar el nombre de la tienda
-            document.getElementById("storeName").innerText = storeName;
-
-            // Si se seleccionó una nueva imagen de la tienda
-            if (storeImage) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    document.getElementById("storeName").style.backgroundImage = `url(${e.target.result})`;
-                };
-                reader.readAsDataURL(storeImage);
-            }
-
-            // Si se seleccionó un nuevo banner
-            if (storeBanner) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    document.getElementById("storeBanner").src = e.target.result;
-                };
-                reader.readAsDataURL(storeBanner);
-            }
-
-            closeEditStoreForm(); // Cerrar formulario
-        }
-    </script>
-
-    <script src="/www/js/back-button.js"></script>
-    <script src="/www/js/navbar.js"></script>
+  <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="/www/js/back-button.js"></script>
+  <script src="/www/js/navbar.js"></script>
+  <script src="/www/js/spinner.js"></script>
 </body>
 </html>

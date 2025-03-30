@@ -8,10 +8,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="/www/css/styles.css">
     <link rel="stylesheet" href="/www/css/legal-style.css">
+
+    <!-- Incluir el archivo spinner.css -->
+    <link rel="stylesheet" href="/www/css/spinner.css" />
 </head>
 <body>
+    <!-- Spinner -->
+    <div id="spinner" class="spinner-container">
+        <div class="spinner"></div>
+    </div>
+
     <nav id="navbar-container"></nav>
-    
+
     <div class="container">
         <h1>Política de Privacidad</h1>
         <p>Tu privacidad es importante para nosotros. En esta política explicamos cómo recopilamos, usamos y protegemos tu información personal...</p>
@@ -22,9 +30,23 @@
         <h2>3. Seguridad</h2>
         <p>Implementamos medidas de seguridad para proteger tu información contra accesos no autorizados y usos indebidos...</p>
     </div>
+
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="/www/js/back-button.js"></script>
     <script src="/www/js/navbar.js"></script>
 
+    <!-- Incluir el archivo spinner.js -->
+    <script src="/www/js/spinner.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        showSpinner();  // Mostrar el spinner
+
+        // Simulación de carga de la política de privacidad (puedes modificar esta parte para cargar los datos reales)
+        setTimeout(() => {
+          hideSpinner();  // Ocultar el spinner una vez que se haya cargado el contenido
+        }, 2000);  // Simulando 2 segundos de carga
+      });
+    </script>
 </body>
 </html>

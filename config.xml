@@ -1,11 +1,22 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="io.cordova.hellocordova" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>HelloCordova</name>
-    <description>Sample Apache Cordova App</description>
-    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
-        Apache Cordova Team
+<widget id="com.uttstore.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <!-- Nombre de la aplicación que se mostrará en la pantalla del dispositivo -->
+    <name>UTTS</name>
+    
+    <!-- Descripción de la aplicación -->
+    <description>Emprende en la uni.</description>
+    
+    <!-- Información sobre el autor -->
+    <author email="enema3901@gmail.com">
+        Uttstore Team
     </author>
+    
+    <!-- Página de inicio (debe ser tu archivo HTML principal) -->
     <content src="index.html" />
+    
+    <!-- Permite que la aplicación acceda a cualquier URL -->
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
+    
+    <!-- Otros permisos o configuraciones que puedas necesitar -->
 </widget>

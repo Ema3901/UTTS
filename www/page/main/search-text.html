@@ -8,136 +8,277 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="/www/css/styles.css">
     <link rel="stylesheet" href="/www/css/search-text-styles.css">
+
+    <!-- Incluir el archivo spinner.css -->
+    <link rel="stylesheet" href="/www/css/spinner.css" />
+    
+    <style>
+        .filter-keyword {
+            color: #666; /* Color por defecto (gris) */
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-weight: 500;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .filter-keyword.active {
+            background-color: #0ACF83; /* Color cuando está seleccionado */
+            color: white;
+        }
+
+        .product-card {
+            background-color: #fff;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            width: 250px;  /* Establece un ancho fijo para las tarjetas */
+            margin: 10px;
+            text-align: center;
+        }
+
+        /* Contenedor fijo para la imagen con mayor altura */
+        .product-image-container {
+            width: 100%;
+            height: 250px;  /* Altura aumentada para las imágenes */
+            overflow: hidden;  /* Evita que las imágenes se desborden */
+            border-radius: var(--border-radius);  /* Mantiene el borde redondeado */
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;  /* Asegura que la imagen se ajuste sin deformarse */
+            object-position: center;  /* Centra la imagen dentro del contenedor */
+        }
+
+        .product-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 12px 0;
+        }
+
+        .product-card p {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .product-card .price {
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        /* Botón */
+        .button {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .button:hover {
+            background: #08b972;
+        }
+
+        /* Diseño responsivo */
+        @media (max-width: 768px) {
+            .categories {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+
+            .product-card {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Spinner -->
+    <div id="spinner" class="spinner-container">
+        <div class="spinner"></div>
+    </div>
+
     <nav id="navbar-container"></nav>
 
     <div class="container">
         <div class="search-container">
-            <input type="text" placeholder="Tacos">
+            <input type="text" placeholder="Buscar productos..." id="search-input" value="">
         </div>
 
+        <!-- Filtros visibles sin modal -->
         <div class="filter-container">
-            <button class="filter-button"><i class="fa fa-sliders-h"></i> Filtro</button>
-            <span>Popularidad</span>
-            <span>Nuevo</span>
-            <span>Mayor precio</span>
-            <span>Menor precio</span>
+            <span class="filter-keyword" id="popularidad-filter">Popularidad</span>
+            <span class="filter-keyword" id="nuevo-filter">Nuevo</span>
+            <span class="filter-keyword" id="mayor-precio-filter">Mayor precio</span>
+            <span class="filter-keyword" id="menor-precio-filter">Menor precio</span>
         </div>
 
-        <div class="search-results">
-            <div class="product-card" onclick="window.location.href='product.html';">
-                <img src="/www/img/food-placeholder1.jpg" alt="Tacos de trompo">
-                <h3>Cafe de Gengar</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder2.jpg" alt="Tacos de trompo">
-                <h3>Cafe de Snowm</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder3.jpg" alt="Tacos de trompo">
-                <h3>Cafe de Vulpix</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder1.jpg" alt="Tacos de trompo">
-                <h3>Cafe de Gengar</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder2.jpg" alt="Tacos de trompo">
-                <h3>Cafe de Snowm</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder3.jpg" alt="Tacos de trompo">
-                <h3>Cafe de Vulpix</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Filtros -->
-    <div id="filter-modal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="close-modal">&times;</button>
-            <h2>Filtro</h2>
-
-            <div class="filter-section">
-                <h3>Categoría</h3>
-                <div class="filter-options">
-                    <span class="active">Comida</span>
-                    <span>Tecnología</span>
-                    <span>Mercería</span>
-                    <span>Ropa</span>
-                    <span>Electrónica</span>
-                    <span>Hogar</span>
-                    <span>Deportes</span>
-                    <span>Salud</span>
-                    <span>Automotriz</span>
-                </div>
-            </div>
-            <hr>
-            <div class="filter-section">
-                <h3>Ordenar por</h3>
-                <div class="filter-options">
-                    <span class="active">Popularidad</span>
-                    <span>Más nuevo</span>
-                    <span>Más antiguo</span>
-                    <span>Mayor precio</span>
-                    <span>Menor precio</span>
-                    <span>Reseñas</span>
-                </div>
-            </div>
-            <hr>
-            <div class="filter-section">
-                <h3>Rango de Precio</h3>
-                <div class="price-range">
-                    <input type="text" placeholder="Precio min.">
-                    <input type="text" placeholder="Precio máx.">
-                </div>
-            </div>
-            <hr>
-            <button class="apply-filter">Aplicar filtro</button>
+        <div class="search-results" id="results-container">
+            <!-- Los productos serán cargados dinámicamente aquí -->
         </div>
     </div>
 
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/www/js/back-button.js"></script>
+    <script src="/www/js/navbar.js"></script>
+
+    <script src="/www/js/spinner.js"></script>
+
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const filterButton = document.querySelector(".filter-button");
-            const filterModal = document.getElementById("filter-modal");
-            const closeModal = document.querySelector(".close-modal");
-        
-            // Asegurarse de que el modal esté oculto al cargar la página
-            filterModal.style.display = "none";
-        
-            filterButton.addEventListener("click", function () {
-                filterModal.style.display = "flex";
+        let searchQuery = '';  // Variable para almacenar la consulta de búsqueda
+        let category_id = '';  // Variable para almacenar la categoría seleccionada, por defecto vacío
+
+        // Función para realizar la solicitud a la API con los filtros y la búsqueda
+        function fetchProducts() {
+            const name = searchQuery;
+            const minPrice = 0;  // No hay límite en el precio mínimo
+            const maxPrice = 999999; // No hay límite en el precio máximo
+            const page = 1;  // Página de resultados
+            const perPage = 10;  // Número de productos por página
+            const sortBy = 'price'; // Ordenar por precio, puedes cambiarlo a 'rating' o 'name'
+
+            // Si no se ha seleccionado ninguna categoría, dejamos category_id vacío
+            const url = `https://uttsmarket.bsite.net/api/products/filter?category_id=${category_id || ''}&name=${name}&minPrice=${minPrice}&maxPrice=${maxPrice}&sortBy=${sortBy}&page=${page}&perPage=${perPage}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Verificar si la respuesta es un array
+                    if (Array.isArray(data)) {
+                        displayProducts(data);  // Mostrar los productos obtenidos
+                    } else {
+                        console.error('Error: La respuesta de la API no es un array.', data);
+                        
+                        // Si la respuesta es un objeto con productos en una propiedad
+                        if (data.products && Array.isArray(data.products)) {
+                            displayProducts(data.products); // Usar la propiedad que contiene los productos
+                        } else {
+                            console.error('Error: La API no está devolviendo los productos correctamente.', data);
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching products:', error));
+        }
+
+        // Función para cargar los productos basados en la búsqueda
+        function loadSearchResults(query) {
+            searchQuery = normalizeString(query);  // Normalizar la búsqueda
+            fetchProducts();  // Realizamos la llamada a la API con los filtros y la búsqueda
+        }
+
+        // Función para normalizar la cadena de búsqueda (eliminar acentos y convertir a minúsculas)
+        function normalizeString(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        }
+
+        // Función para aplicar los filtros
+        function applyFilters(filteredProducts) {
+            const activeFilters = [];
+            document.querySelectorAll('.filter-keyword.active').forEach(active => {
+                activeFilters.push(active.textContent.trim());
             });
-        
-            closeModal.addEventListener("click", function () {
-                filterModal.style.display = "none";
-            });
-        
-            window.addEventListener("click", function (event) {
-                if (event.target === filterModal) {
-                    filterModal.style.display = "none";
+
+            // Aplicar filtros según los seleccionados
+            if (activeFilters.includes('Mayor precio')) {
+                filteredProducts.sort((a, b) => b.price - a.price);
+            }
+            if (activeFilters.includes('Menor precio')) {
+                filteredProducts.sort((a, b) => a.price - b.price);
+            }
+            if (activeFilters.includes('Popularidad')) {
+                filteredProducts.sort((a, b) => b.average_rating - a.average_rating);
+            }
+            if (activeFilters.includes('Nuevo')) {
+                // Ordenar por fecha (updated_at) de más nuevo a más viejo
+                filteredProducts.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+            }
+
+            // Actualizar la vista con los productos filtrados
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.innerHTML = '';  // Limpiar antes de mostrar resultados
+            filteredProducts.forEach(product => {
+                if (product.product_id) {
+                    resultsContainer.innerHTML += `
+                        <div class="product-card" onclick="window.location.href='product.html?product_id=${product.product_id}';">
+                            <div class="product-image-container">
+                                <img src="${product.thumbnail}" alt="${product.product_name}">
+                            </div>
+                            <h3>${product.product_name}</h3>
+                            <p class="price">MX ${product.price}</p>
+                            <p class="rating"><i class="fa fa-star"></i> ${product.average_rating} Reseñas</p>
+                        </div>
+                    `;
+                } else {
+                    console.error("El producto no tiene una ID válida:", product);
                 }
             });
-        });
-        </script>
-        <script src="/www/js/back-button.js"></script>
-        <script src="/www/js/navbar.js"></script>
-        
+        }
 
+        // Función para mostrar los productos obtenidos de la API
+        function displayProducts(products) {
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.innerHTML = '';  // Limpiar antes de cargar nuevos productos
+
+            if (products.length === 0) {
+                resultsContainer.innerHTML = '<p>No se encontraron productos para esta búsqueda.</p>';
+                return;
+            }
+
+            const filteredProducts = products.filter(product => {
+                // Convertir nombre y descripción a minúsculas para hacer la búsqueda insensible a mayúsculas/minúsculas
+                const productName = normalizeString(product.product_name);
+                const productDescription = normalizeString(product.description);
+
+                // Verificar si la búsqueda (query) está presente en el nombre o en la descripción
+                return productName.includes(searchQuery) || productDescription.includes(searchQuery);
+            });
+
+            applyFilters(filteredProducts);  // Aplicar los filtros después de la búsqueda
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const query = new URLSearchParams(window.location.search).get('q') || '';
+            document.getElementById('search-input').value = query;
+            loadSearchResults(query);
+
+            // Manejo de filtros por categorías y orden
+            const filterOptions = document.querySelectorAll('.filter-keyword');
+            filterOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Si el filtro ya está activo, desactivarlo
+                    if (this.classList.contains('active')) {
+                        this.classList.remove('active');
+                    } else {
+                        // Desactivar todos los filtros y activar el seleccionado
+                        filterOptions.forEach(opt => opt.classList.remove('active'));
+                        this.classList.add('active');
+                    }
+                    
+                    // Cambiar la categoría seleccionada (ajustar el category_id)
+                    if (this.id === 'popularidad-filter') {
+                        category_id = '';  // Ropa, por ejemplo
+                    } else if (this.id === 'nuevo-filter') {
+                        category_id = '';  // Dejar vacío para no filtrar por categoría
+                    }
+                    // Recargar productos aplicando los filtros
+                    loadSearchResults(searchQuery); // Recargar productos aplicando los filtros
+                });
+            });
+
+            // Actualizar productos cuando se cambia la búsqueda
+            document.getElementById('search-input').addEventListener('input', function() {
+                loadSearchResults(this.value);
+            });
+        });
+    </script>
 </body>
 </html>

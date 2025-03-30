@@ -8,90 +8,243 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="/www/css/styles.css">
     <link rel="stylesheet" href="/www/css/product-styles.css">
+
+    <!-- Incluir el archivo spinner.css -->
+    <link rel="stylesheet" href="/www/css/spinner.css" />
+    
+    <style>
+        .product-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tabs span.active {
+            color: #0ACF83;
+        }
+
+        .hidden-section {
+            display: none !important;
+        }
+
+        .product-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-image-slider,
+        .details-specifications-section {
+            height: 320px; /* Tamaño fijo */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .product-image-slider img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .details-specifications-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            padding: 16px;
+            text-align: left;
+        }
+
+        .active-description {
+            display: block;
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
-    <nav id="navbar-container"></nav>
-    
-    <div class="container">
-        <h3 class="text-success" style="margin-top: 20px;" onclick="window.location.href='store.html';">Tacos Mauricio</h3>
-        <h1>Tacos de trompo</h1>
-        
-        <div class="tabs">
-            <span class="active">Resumen</span>
-            <span onclick="window.location.href='product-details.html';">Detalles y especificaciones</span>
-        </div>
-        
-        <div class="product-image-slider">
-            <img id="product-image" src="/www/img/food-placeholder1.jpg" alt="Tacos de trompo" class="img-fluid rounded">
-            <img src="/www/img/food-placeholder2.jpg" alt="Tacos de trompo" class="img-fluid rounded">
-            <img src="/www/img/food-placeholder3.jpg" alt="Tacos de trompo" class="img-fluid rounded">
-        </div>
-        
-        <div class="reviews">
-            <h4>Review (102)</h4>
-            <div class="review">
-                <img src="/www/img/seller-placeholder.jpg" alt="User" class="user-img">
-                <div>
-                    <strong>Madefina</strong>
-                    <div class="stars">⭐⭐⭐⭐⭐</div>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-                </div>
-            </div>
-            <div class="review">
-                <img src="/www/img/user-placeholder.jpg" alt="User" class="user-img">
-                <div>
-                    <strong>Irfan</strong>
-                    <div class="stars">⭐⭐⭐⭐⭐</div>
-                    <p>Duis aute irure dolor in reprehenderit...</p>
-                </div>
-            </div>
-            <div class="review">
-                <img src="/www/img/seller-placeholder.jpg" alt="User" class="user-img">
-                <div>
-                    <strong>Ravi Putra</strong>
-                    <div class="stars">⭐⭐⭐⭐⭐</div>
-                    <p>Exceptetur sint occaecat cupidatat non proident...</p>
-                </div>
-            </div>
-        </div>
-        
-        <h4>Otro Producto</h4>
-        <div class="related-products">
-            <div class="product-card">
-                <img src="/www/img/food-placeholder2.jpg" alt="Tacos de trompo">
-                <h3>Tacos de trompo</h3>
-                <p class="price">MX $45</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder3.jpg" alt="CO2 Cable">
-                <h3>CO2 - Cable</h3>
-                <p class="price">USD 25</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder3.jpg" alt="CO2 Cable">
-                <h3>CO2 - Cable</h3>
-                <p class="price">USD 25</p>
-            </div>
-        </div>
-        
-        <!-- Botón de WhatsApp -->
-        <button class="button" onclick="contactarVendedor('+528998733689', 'Tacos de trompo', document.getElementById('product-image').src)">
-            Contactar con el vendedor
-        </button>
-        <hr>
+    <!-- Spinner -->
+    <div id="spinner" class="spinner-container">
+        <div class="spinner"></div>
     </div>
-    
+
+    <nav id="navbar-container"></nav>
+
+    <div class="container product-container" id="product-container">
+        <!-- Cargar información del producto aquí -->
+    </div>
+
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="/www/js/back-button.js"></script>
     <script src="/www/js/navbar.js"></script>
 
+    <script src="/www/js/spinner.js"></script>
+
     <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('product_id');
+
+        function fetchProductDetails() {
+            const url = `https://uttsmarket.bsite.net/api/products/read/${productId}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.product_id) {
+                        displayProductDetails(data);
+                        const storeId = data.stores.store_id;
+                        if (storeId) {
+                            fetchStoreDetails(storeId);
+                        } else {
+                            console.error('El producto no tiene un store_id válido');
+                        }
+                    } else {
+                        console.error('Producto no encontrado');
+                    }
+                })
+                .catch(error => console.error('Error al obtener el producto:', error));
+        }
+
+        function fetchStoreDetails(storeId) {
+            const url = `https://uttsmarket.bsite.net/api/stores/read/${storeId}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(storeData => {
+                    if (storeData && storeData.store_name) {
+                        const storeNameElement = document.getElementById('store-name');
+                        storeNameElement.textContent = storeData.store_name;
+                    } else {
+                        console.error('Tienda no encontrada');
+                    }
+                })
+                .catch(error => console.error('Error al obtener la tienda:', error));
+        }
+
+        function displayProductDetails(product) {
+            const productContainer = document.getElementById('product-container');
+            const storeUrl = `store.html?store_id=${product.stores.store_id}`;
+
+            productContainer.innerHTML = `
+                <h3 class="text-success" style="margin-top: 20px;" onclick="window.location.href='${storeUrl}';" id="store-name">undefined</h3>
+                <h1>${product.product_name}</h1>
+
+                <div class="tabs">
+                    <span class="active" id="summary-tab" onclick="toggleTab('summary')">Resumen</span>
+                    <span id="details-tab" onclick="toggleTab('details')">Detalles y Especificaciones</span>
+                </div>
+                
+                <div class="product-content">
+                    <div class="product-image-slider" id="product-images">
+                        <img id="product-image" src="${product.thumbnail}" alt="${product.product_name}" class="img-fluid rounded">
+                    </div>
+                    
+                    <div class="details-specifications-section" id="product-details">
+                        <div>
+                            <h4>Descripción</h4>
+                            <p>
+                                Este producto es de alta calidad y tiene características excepcionales que lo hacen ideal para ti.
+                            </p>
+                            <h4>Especificaciones Técnicas</h4>
+                            <table class="spec-table">
+                                <tr>
+                                    <th>Peso</th>
+                                    <td>250g</td>
+                                </tr>
+                                <tr>
+                                    <th>Material</th>
+                                    <td>Algodón</td>
+                                </tr>
+                                <tr>
+                                    <th>Color</th>
+                                    <td>Rojo</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <h4>Productos Relacionados</h4>
+                <div class="related-products" id="related-products-container"></div>
+                
+                <button class="button" onclick="contactarVendedor('+528998733689', '${product.product_name}', document.getElementById('product-image').src)">
+                    Contactar con el vendedor
+                </button>
+                <hr>
+            `;
+
+            loadRelatedProducts(product.category_id, product.stores.store_id);
+        }
+
+        function loadRelatedProducts(categoryId, storeId) {
+            const url = `https://uttsmarket.bsite.net/api/products/filter?category_id=${categoryId}&name=&minPrice=0&maxPrice=999999&sortBy=popularity&page=1&perPage=5`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (Array.isArray(data)) {
+                        displayRelatedProducts(data, storeId);
+                    } else {
+                        console.error('Error al cargar productos relacionados:', data);
+                    }
+                })
+                .catch(error => console.error('Error al obtener productos relacionados:', error));
+        }
+
+        function displayRelatedProducts(products, storeId) {
+            const relatedProductsContainer = document.getElementById('related-products-container');
+            const relatedByStoreUrl = `https://uttsmarket.bsite.net/api/products/readByStore/${storeId}`;
+
+            fetch(relatedByStoreUrl)
+                .then(response => response.json())
+                .then(storeProducts => {
+                    const allRelatedProducts = [...products, ...storeProducts];
+
+                    relatedProductsContainer.innerHTML = allRelatedProducts.map(product => `
+                        <div class="product-card" onclick="window.location.href='product.html?product_id=${product.product_id}'">
+                            <img src="${product.thumbnail}" alt="${product.product_name}">
+                            <h3>${product.product_name}</h3>
+                            <p class="price">MX ${product.price}</p>
+                        </div>
+                    `).join('');
+                })
+                .catch(error => console.error('Error al obtener productos de la tienda:', error));
+        }
+
         function contactarVendedor(numero, producto, imagen) {
             let mensaje = `Me interesa este producto: ${producto}, más información por favor.`;
             let urlImagen = encodeURIComponent(imagen);
-            let urlProducto = encodeURIComponent("http://127.0.0.1:5500/www/page/main/product.html"); // Link del producto
+            let urlProducto = encodeURIComponent("http://127.0.0.1:5500/www/page/main/product.html");
             let enlace = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}%0AImagen: ${urlImagen}%0ALink del producto: ${urlProducto}`;
             window.open(enlace, '_blank');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            showSpinner();  // Mostrar el spinner
+
+            if (productId) {
+                fetchProductDetails();
+            } else {
+                console.error('ID de producto no disponible');
+            }
+        });
+
+        function toggleTab(tab) {
+            const summaryTab = document.querySelector('#summary-tab');
+            const detailsTab = document.querySelector('#details-tab');
+            const productImages = document.getElementById('product-images');
+            const productDetails = document.getElementById('product-details');
+
+            if (tab === 'summary') {
+                summaryTab.classList.add('active');
+                detailsTab.classList.remove('active');
+                productImages.classList.remove('hidden-section');
+                productDetails.classList.remove('active-description');
+                productDetails.style.display = 'none';
+            } else {
+                detailsTab.classList.add('active');
+                summaryTab.classList.remove('active');
+                productImages.classList.add('hidden-section');
+                productDetails.classList.add('active-description');
+                productDetails.style.display = 'block';
+            }
+
+            hideSpinner();  // Ocultar el spinner después de cargar los datos
         }
     </script>
 </body>

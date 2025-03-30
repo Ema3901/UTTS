@@ -8,26 +8,34 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="/www/css/styles.css">
     <link rel="stylesheet" href="/www/css/user-style.css">
+
+    <!-- Incluir el archivo spinner.css -->
+    <link rel="stylesheet" href="/www/css/spinner.css" />
 </head>
 <body>
+    <!-- Spinner -->
+    <div id="spinner" class="spinner-container">
+        <div class="spinner"></div>
+    </div>
+
     <nav id="navbar-container"></nav>
-    
+
     <div class="container text-center">
         <div class="profile-header">
             <img id="userProfileImage" src="/www/img/user-placeholder.jpg" alt="Usuario" class="profile-img">
             <h3 id="userName">Cargando...</h3>
             <p id="userEmail">Cargando...</p>
         </div>
-        
+
         <div class="profile-options">
             <h5 class="section-title">General</h5>
             <div class="option" onclick="window.location.href='edit-user.html';">Editar perfil</div>
             <div id="storeButton" class="option">Cargando...</div>
-            
+
             <h5 class="section-title">Legal</h5>
             <div class="option" onclick="window.location.href='terms-of-usage.html';">Términos de uso</div>
             <div class="option" onclick="window.location.href='privacity.html';">Política de privacidad</div>
-            
+
             <h5 class="section-title">Personal</h5>
             <div id="deleteStoreOption" class="option logout" onclick="showDeleteConfirmation()">Borrar tienda</div>
             <div class="option logout" onclick="showLogoutConfirmation()">Logout</div>
@@ -62,121 +70,114 @@
         </div>
     </div>
 
+    <script src="/www/js/firebase.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // Cargar Datos del Usuario y Verificar Tienda al Cargar la Página
-        document.addEventListener("DOMContentLoaded", async () => {
+        let storeIdGlobal = null;
+
+        $(document).ready(async function () {
             const user = JSON.parse(localStorage.getItem("user"));
 
             if (user) {
-                // Cargar nombre y correo
-                document.getElementById("userName").textContent = user.username || "Usuario";
-                document.getElementById("userEmail").textContent = user.email || "";
+                $("#userName").text(user.username || "Usuario");
+                $("#userEmail").text(user.email || "");
 
-                // Cargar la imagen del perfil si está disponible
                 if (user.profile_picture) {
-                    document.getElementById("userProfileImage").src = user.profile_picture;
+                    $("#userProfileImage").attr("src", user.profile_picture);
                 }
 
-                // Verificar si el usuario tiene una tienda
                 try {
+                    showSpinner(); // Mostrar el spinner mientras verificamos la tienda
                     let storeResponse = await fetch(`https://uttsmarket.bsite.net/api/stores/readByUser/${user.user_id}`);
                     let storeData = await storeResponse.json();
-                    let storeButton = document.getElementById("storeButton");
-
-                    // Verificar que los datos de la tienda están disponibles
-                    console.log(storeData); // Depuración
 
                     if (Array.isArray(storeData) && storeData.length > 0) {
-                        const store = storeData[0]; // Usar el primer objeto si es un array
-                        storeButton.innerText = "Tu tienda";
-                        storeButton.onclick = function () {
-                            window.location.href = `/www/page/main/store.html?store_id=${store.store_id}`;
-                        };
-                    } else {
-                        storeButton.innerText = "Crear tienda";
-                        storeButton.onclick = function () {
-                            window.location.href = `/www/page/main/create-store.html`;
-                        };
+                        const store = storeData[0];
+                        storeIdGlobal = store.store_id;
 
-                        // Si NO tiene tienda, ocultamos el botón de "Borrar tienda"
-                        document.getElementById("deleteStoreOption").style.display = "none";
+                        $("#storeButton").text("Tu tienda").click(function () {
+                            window.location.href = `/www/page/main/edit-store.html?store_id=${store.store_id}`;
+                        });
+                    } else {
+                        $("#storeButton").text("Crear tienda").click(function () {
+                            window.location.href = `/www/page/main/create-store.html`;
+                        });
+                        $("#deleteStoreOption").hide();
                     }
                 } catch (error) {
                     console.error("Error al verificar tienda:", error);
-                    document.getElementById("deleteStoreOption").style.display = "none"; // En caso de error, ocultar también
+                    $("#deleteStoreOption").hide();
                 }
 
+                hideSpinner(); // Ocultar el spinner una vez completada la carga de la tienda
             } else {
                 window.location.href = "/www/page/login/login.html";
             }
         });
 
-        // Mostrar Modales
         function showDeleteConfirmation() {
-            document.getElementById("deleteConfirmation").style.display = "block";
+            $("#deleteConfirmation").show();
         }
         function closeDeleteConfirmation() {
-            document.getElementById("deleteConfirmation").style.display = "none";
+            $("#deleteConfirmation").hide();
         }
         function confirmDelete() {
             closeDeleteConfirmation();
-            document.getElementById("passwordPrompt").style.display = "block";
+            $("#passwordPrompt").show();
         }
         function closePasswordPrompt() {
-            document.getElementById("passwordPrompt").style.display = "none";
+            $("#passwordPrompt").hide();
         }
         function showLogoutConfirmation() {
-            document.getElementById("logoutConfirmation").style.display = "block";
+            $("#logoutConfirmation").show();
         }
         function closeLogoutConfirmation() {
-            document.getElementById("logoutConfirmation").style.display = "none";
+            $("#logoutConfirmation").hide();
         }
 
-        // Cerrar Sesión (Logout)
         function logout() {
             localStorage.removeItem("user");
             window.location.href = "/www/page/login/login.html";
         }
 
-        // Eliminar Tienda
         async function deleteStore() {
-            let password = document.getElementById("passwordInput").value;
+            let password = $("#passwordInput").val();
             if (!password) {
                 alert("Por favor, ingresa tu contraseña.");
                 return;
             }
 
             const user = JSON.parse(localStorage.getItem("user"));
-            if (!user) {
-                alert("No hay sesión activa.");
-                window.location.href = "/www/page/login/login.html";
+            if (!user || !storeIdGlobal) {
+                alert("No hay sesión activa o tienda encontrada.");
                 return;
             }
 
             try {
-                // Obtener la tienda asociada al usuario
-                let storeResponse = await fetch(`https://uttsmarket.bsite.net/api/stores/readByUser/${user.user_id}`);
-                let storeData = await storeResponse.json();
+                // Eliminar productos de la tienda
+                const productosRes = await fetch("https://uttsmarket.bsite.net/api/products/read", { method: "GET" });
+                const productos = await productosRes.json();
+                const productosTienda = productos.filter(p => p.store_id === storeIdGlobal);
 
-                if (!storeData || !storeData.store_id) {
-                    alert("No tienes una tienda asociada.");
-                    return;
+                for (const prod of productosTienda) {
+                    await fetch(`https://uttsmarket.bsite.net/api/products/delete/${prod.product_id}`, {
+                        method: "DELETE",
+                        headers: { "Content-Type": "application/json" }
+                    });
                 }
 
-                let storeId = storeData.store_id;
-
-                // Petición DELETE para eliminar la tienda
-                let response = await fetch(`https://uttsmarket.bsite.net/api/stores/delete/${storeId}`, {
+                // Eliminar la tienda
+                let response = await fetch(`https://uttsmarket.bsite.net/api/stores/delete/${storeIdGlobal}`, {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
                 });
 
-                let result = await response.json();
-                if (result.success) {
-                    alert("Tienda eliminada correctamente.");
+                if (response.ok) {
+                    alert("Tienda y productos eliminados correctamente.");
                     window.location.reload();
                 } else {
-                    alert("Error al eliminar la tienda: " + result.message);
+                    const result = await response.json();
+                    alert("Error al eliminar la tienda: " + (result.message || "Desconocido"));
                 }
 
             } catch (error) {
@@ -189,6 +190,6 @@
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="/www/js/back-button.js"></script>
     <script src="/www/js/navbar.js"></script>
-
+    <script src="/www/js/spinner.js"></script>
 </body>
 </html>

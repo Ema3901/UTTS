@@ -8,73 +8,147 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="/www/css/styles.css">
     <link rel="stylesheet" href="/www/css/store-styles.css">
+
+    <!-- Incluir el archivo spinner.css -->
+    <link rel="stylesheet" href="/www/css/spinner.css" />
+
+    <style>
+        .product-card .image-container {
+            width: 100%;
+            height: 160px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f4f4f4;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .product-card .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    </style>
 </head>
 <body>
+    <!-- Spinner -->
+    <div id="spinner" class="spinner-container">
+        <div class="spinner"></div>
+    </div>
+
     <nav id="navbar-container"></nav>
 
     <div class="store-header">
-        <div class="store-name">Tacos de MAURICIO</div>
+        <div class="store-name" id="store-name">Cargando tienda...</div>
         <div class="banner">
-            <img src="/www/img/banner-store.jpeg" alt="Banner de la tienda" class="img-fluid rounded">
+            <img id="store-banner" alt="Banner de la tienda" class="img-fluid rounded">
         </div>
     </div>
-    
-                
-        <div class="product-grid">
-            <div class="product-card" onclick="window.location.href='product.html';">
-                <img src="/www/img/food-placeholder1.jpg" alt="Tacos de trompo">
-                <h3>Tacos de trompo</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder2.jpg" alt="Tacos de trompo">
-                <h3>Tacos de trompo</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder3.jpg" alt="Tacos de trompo">
-                <h3>Tacos de trompo</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder1.jpg" alt="Tacos de trompo">
-                <h3>Tacos de trompo</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder1.jpg" alt="Tacos de trompo">
-                <h3>Tacos de trompo</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder1.jpg" alt="Tacos de trompo">
-                <h3>Tacos de trompo</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder1.jpg" alt="Tacos de trompo">
-                <h3>Tacos de trompo</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-            <div class="product-card">
-                <img src="/www/img/food-placeholder1.jpg" alt="Tacos de trompo">
-                <h3>Tacos de trompo</h3>
-                <p class="price">MX $45</p>
-                <p class="rating"><i class="fa fa-star"></i> 4.6  86 Reviews</p>
-            </div>
-        </div>
+
+    <div class="product-grid" id="store-products">
+        <!-- Productos cargados dinámicamente -->
     </div>
-    
+
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="/www/js/back-button.js"></script>
     <script src="/www/js/navbar.js"></script>
 
+    <script src="/www/js/spinner.js"></script>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const storeId = urlParams.get('store_id');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (storeId) {
+                showSpinner();  // Mostrar el spinner mientras cargamos la tienda
+                fetchStoreDetails(storeId);
+                fetchStoreProducts(storeId);
+            } else {
+                console.error('No se proporcionó store_id en la URL');
+            }
+        });
+
+        function fetchStoreDetails(id) {
+            fetch(`https://uttsmarket.bsite.net/api/stores/read/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.store_name) {
+                        document.getElementById('store-name').textContent = data.store_name;
+
+                        const bannerImg = data.banner_img && data.banner_img.trim() !== ''
+                            ? data.banner_img
+                            : '/www/img/banner-store.jpeg';
+
+                        document.getElementById('store-banner').src = bannerImg;
+                    } else {
+                        document.getElementById('store-name').textContent = 'Tienda no encontrada';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error al cargar los datos de la tienda:', err);
+                    document.getElementById('store-name').textContent = 'Error al cargar la tienda';
+                });
+        }
+
+        function fetchStoreProducts(storeId) {
+            const container = document.getElementById('store-products');
+            container.innerHTML = '<p style="text-align:center; width:100%">Cargando productos...</p>';
+
+            fetch(`https://uttsmarket.bsite.net/api/products/readByStore/${storeId}`)
+                .then(res => res.json())
+                .then(products => {
+                    if (!Array.isArray(products) || products.length === 0) {
+                        container.innerHTML = '<p style="text-align:center; width:100%">No hay productos en esta tienda.</p>';
+                        hideSpinner();  // Ocultar el spinner cuando los productos se hayan cargado
+                        return;
+                    }
+
+                    const productCards = [];
+
+                    const promises = products.map(product => {
+                        return fetch(`https://uttsmarket.bsite.net/api/products/read/${product.product_id}`)
+                            .then(res => res.json())
+                            .then(fullProduct => {
+                                const imageSrc = fullProduct.thumbnail && fullProduct.thumbnail.trim() !== ''
+                                    ? fullProduct.thumbnail
+                                    : '/www/img/food-placeholder1.jpg';
+
+                                const rating = fullProduct.average_rating || '0.0';
+                                const reviews = fullProduct.reviews_count || 0;
+
+                                productCards.push(`
+                                    <div class="product-card" onclick="window.location.href='product.html?product_id=${fullProduct.product_id}'">
+                                        <div class="image-container">
+                                            <img src="${imageSrc}" alt="${fullProduct.product_name}">
+                                        </div>
+                                        <h3>${fullProduct.product_name}</h3>
+                                        <p class="price">MX $${fullProduct.price}</p>
+                                        <p class="rating"><i class="fa fa-star"></i> ${rating} ${reviews} Reviews</p>
+                                    </div>
+                                `);
+                            });
+                    });
+
+                    Promise.all(promises)
+                        .then(() => {
+                            container.innerHTML = productCards.join('');
+                            hideSpinner();  // Ocultar el spinner después de cargar los productos
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar detalles de los productos:', error);
+                            container.innerHTML = '<p style="text-align:center; width:100%">Error al cargar productos.</p>';
+                            hideSpinner();  // Ocultar el spinner en caso de error
+                        });
+                })
+                .catch(err => {
+                    console.error('Error al obtener productos de la tienda:', err);
+                    container.innerHTML = '<p style="text-align:center; width:100%">Error al cargar productos.</p>';
+                    hideSpinner();  // Ocultar el spinner en caso de error
+                });
+        }
+    </script>
 </body>
 </html>

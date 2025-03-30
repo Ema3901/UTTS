@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="cordova" content="cordova" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>UTTS - Inicio</title>
+  <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" href="/www/css/styles.css" />
+  <link rel="stylesheet" href="/www/css/home-styles.css" />
+  
+  <!-- Spinner CSS -->
+  <link rel="stylesheet" href="/www/css/spinner.css" />
+</head>
+<body>
+  <!-- Navbar -->
+  <div id="navbar-container"></div>
+
+  <!-- Spinner -->
+  <div id="spinner" class="spinner-container">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="container">
+    <!-- Saludo personalizado -->
+    <div id="saludo-usuario" class="saludo">¡Hola!</div>
+
+    <!-- Buscador -->
+    <div class="search-container">
+      <input type="text" placeholder="Búsqueda" onclick="window.location.href='/www/page/main/search.html';" readonly />
+    </div>
+
+    <!-- Producto recomendado -->
+    <h2>Producto Recomendado</h2>
+    <div id="random-product" class="product-card"></div>
+
+    <!-- Secciones por categoría -->
+    <div class="sections">
+      <div class="section" data-category-id="1">
+        <h3>Comida</h3>
+        <div class="product-container"></div>
+      </div>
+      <div class="section" data-category-id="2">
+        <h3>Tecnología</h3>
+        <div class="product-container"></div>
+      </div>
+      <div class="section" data-category-id="3">
+        <h3>Ropa</h3>
+        <div class="product-container"></div>
+      </div>
+    </div>
+
+    <!-- Productos recomendados -->
+    <h2>Productos recomendados</h2>
+    <div class="recommended" id="product-list"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="cordova.js"></script>
+  <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+
+  <!-- Navbar.js -->
+  <script src="/www/js/navbar.js"></script>
+
+  <!-- Spinner.js -->
+  <script src="/www/js/spinner.js"></script>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      window.location.href = "/www/page/login/login.html";
+    }
+
+    let productos = [];
+    const error404URL = "https://firebasestorage.googleapis.com/v0/b/utts-6d6dd.firebasestorage.app/o/error404.jpg?alt=media&token=290cf73d-9a5b-4fec-88a4-003c0ffea3ee";
+
+    function mostrarSaludo() {
+      const username = user?.username || "usuario";
+      const saludo = document.getElementById("saludo-usuario");
+
+      const hora = new Date().getHours();
+      let saludoHora = "¡Hola";
+      if (hora >= 5 && hora < 12) saludoHora = "¡Buenos días";
+      else if (hora >= 12 && hora < 19) saludoHora = "¡Buenas tardes";
+      else saludoHora = "¡Buenas noches";
+
+      saludo.textContent = `${saludoHora}, ${username}!`;
+    }
+
+    async function obtenerProductos() {
+      showSpinner();  // Mostrar el spinner al comenzar la carga
+      try {
+        const response = await fetch("https://uttsmarket.bsite.net/api/products/read");
+        productos = await response.json();
+
+        console.log("📦 Productos recibidos desde la API:");
+        console.log(productos);
+
+        mostrarProductosPorCategoria(productos);
+        mostrarProductoAleatorio();
+        mostrarRecomendados();
+      } catch (error) {
+        console.error("Error al obtener los productos:", error);
+      } finally {
+        hideSpinner();  // Ocultar el spinner cuando la carga haya terminado
+      }
+    }
+
+    function mostrarProductosPorCategoria(productos) {
+      const secciones = document.querySelectorAll(".section");
+
+      secciones.forEach((section) => {
+        const container = section.querySelector(".product-container");
+        const categoryId = section.dataset.categoryId;
+
+        const productosCategoria = productos.filter(p => p.categories?.category_id == categoryId);
+        console.log(`CATEGORÍA ID: ${categoryId} | Productos encontrados: ${productosCategoria.length}`);
+
+        container.innerHTML = "";
+
+        if (productosCategoria.length === 0) {
+          container.innerHTML = `<div class="no-products">No se encontraron productos para la categoría ${categoryId}</div>`;
+          return;
+        }
+
+        for (const producto of productosCategoria) {
+          const imageUrl = producto.thumbnail && producto.thumbnail.startsWith("http")
+              ? producto.thumbnail
+              : error404URL;
+
+          const productCard = document.createElement("div");
+          productCard.classList.add("product-card");
+          productCard.setAttribute("onclick", `window.location.href='/www/page/main/product.html?product_id=${producto.product_id}'`);
+          productCard.innerHTML = `
+            <div class="image-container">
+                <img src="${imageUrl}" alt="${producto.product_name}">
+            </div>
+            <h3>${producto.product_name}</h3>
+            <p class="price">MX ${producto.price}</p>
+            <p class="button">Compra ahora →</p>
+          `;
+          container.appendChild(productCard);
+        }
+      });
+    }
+
+    function mostrarProductoAleatorio() {
+      const randomIndex = Math.floor(Math.random() * productos.length);
+      const producto = productos[randomIndex];
+      const imageUrl = producto.thumbnail && producto.thumbnail.startsWith("http")
+          ? producto.thumbnail
+          : error404URL;
+
+      const randomProductCard = document.getElementById("random-product");
+      randomProductCard.setAttribute("onclick", `window.location.href='/www/page/main/product.html?product_id=${producto.product_id}'`);
+      randomProductCard.innerHTML = `
+        <div class="image-container">
+          <img src="${imageUrl}" alt="${producto.product_name}">
+        </div>
+        <h3>${producto.product_name}</h3>
+        <p class="price">MX ${producto.price}</p>
+        <p class="button">Compra ahora →</p>
+      `;
+    }
+
+    function mostrarRecomendados() {
+      const productList = document.getElementById("product-list");
+      const seleccionados = productos.sort(() => 0.5 - Math.random()).slice(0, 10);
+
+      productList.innerHTML = seleccionados.map(producto => {
+        const imageUrl = producto.thumbnail && producto.thumbnail.startsWith("http")
+          ? producto.thumbnail
+          : error404URL;
+
+        return `
+          <div class="product-card" onclick="window.location.href='/www/page/main/product.html?product_id=${producto.product_id}'">
+            <div class="image-container">
+              <img src="${imageUrl}" alt="${producto.product_name}">
+            </div>
+            <h3>${producto.product_name}</h3>
+            <p class="price">MX ${producto.price}</p>
+            <p class="button">Compra ahora →</p>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Iniciar
+    mostrarSaludo();
+    obtenerProductos();
+  </script>
+</body>
+</html>
