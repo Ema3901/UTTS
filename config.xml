@@ -17,6 +17,10 @@
     <!-- Permite que la aplicación acceda a cualquier URL -->
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
+
+    <platform name="android">
+        <icon src="/img/thumbnail.png" />
+    </platform>
     
     <!-- Otros permisos o configuraciones que puedas necesitar -->
 </widget>
