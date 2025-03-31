@@ -14,8 +14,16 @@
     <!-- Archivos CSS -->
     <link rel="stylesheet" href="/www/css/auth-styles.css">
     <link rel="stylesheet" href="/www/css/styles.css">
+
+    <!-- Estilos de la splash screen -->
+    <link rel="stylesheet" href="/www/css/splash-screen.css" />
 </head>
 <body class="bg-gradient d-flex align-items-center justify-content-center min-vh-100">
+
+    <!-- Splash Screen (se mostrará solo la primera vez) -->
+    <div id="splash-screen" class="splash-screen">
+        <img src="/www/img/logo.png" alt="Logo" class="splash-logo">
+    </div>
 
     <div class="container container-custom">
         <div class="text-center mb-4">
@@ -102,5 +110,9 @@
         });
     });
     </script>
+
+    <!-- Splash Screen JS -->
+    <script src="/www/js/splash-screen.js"></script>
+
 </body>
 </html>

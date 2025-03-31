@@ -12,10 +12,17 @@
   <link rel="stylesheet" href="/www/css/styles.css" />
   <link rel="stylesheet" href="/www/css/home-styles.css" />
   
+  <!-- Estilos de la splash screen -->
+  <link rel="stylesheet" href="/www/css/splash-screen.css" />
   <!-- Spinner CSS -->
   <link rel="stylesheet" href="/www/css/spinner.css" />
 </head>
 <body>
+  <!-- Splash Screen (se mostrará solo la primera vez) -->
+  <div id="splash-screen" class="splash-screen">
+    <img src="/www/img/logo.png" alt="Logo" class="splash-logo">
+  </div>
+
   <!-- Navbar -->
   <div id="navbar-container"></div>
 
@@ -67,6 +74,9 @@
 
   <!-- Spinner.js -->
   <script src="/www/js/spinner.js"></script>
+
+  <!-- Splash Screen JS -->
+  <script src="/www/js/splash-screen.js"></script>
 
   <script>
     const user = JSON.parse(localStorage.getItem("user"));
