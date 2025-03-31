@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="/www/css/styles.css">
     <link rel="stylesheet" href="/www/css/product-styles.css">
-
-    <!-- Incluir el archivo spinner.css -->
     <link rel="stylesheet" href="/www/css/spinner.css" />
 </head>
 <body>
@@ -24,15 +22,26 @@
         <!-- Cargar información del producto aquí -->
     </div>
 
+    <!-- Alerta personalizada con opciones de agregar otro producto -->
+    <div id="custom-alert" class="custom-alert">
+        <div class="alert-content">
+            <p id="alert-message">Producto agregado al carrito</p>
+            <div id="alert-buttons">
+                <button class="close-alert" id="yes-btn" onclick="addAnother()">Sí</button>
+                <button class="close-alert" id="no-btn" onclick="closeAlert()">No</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="/www/js/back-button.js"></script>
     <script src="/www/js/navbar.js"></script>
-
     <script src="/www/js/spinner.js"></script>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('product_id');
+        let storePhoneNumber = ''; // Variable para guardar el número de teléfono del dueño
 
         function fetchProductDetails() {
             const url = `https://uttsmarket.bsite.net/api/products/read/${productId}`;
@@ -62,11 +71,32 @@
                     if (storeData && storeData.store_name) {
                         const storeNameElement = document.getElementById('store-name');
                         storeNameElement.textContent = storeData.store_name;
+
+                        const userId = storeData.users.user_id; // Obtener el user_id del dueño
+                        if (userId) {
+                            fetchUserPhoneNumber(userId); // Llamar para obtener el número de teléfono del dueño
+                        }
                     } else {
                         console.error('Tienda no encontrada');
                     }
                 })
                 .catch(error => console.error('Error al obtener la tienda:', error));
+        }
+
+        // Nueva función para obtener el número de teléfono del usuario (dueño de la tienda)
+        function fetchUserPhoneNumber(userId) {
+            const url = `https://uttsmarket.bsite.net/api/users/read/${userId}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(userData => {
+                    if (userData && userData.phone_number) {
+                        storePhoneNumber = userData.phone_number; // Guardamos el número de teléfono
+                        console.log('Número de teléfono del dueño:', storePhoneNumber); // Verificación en consola
+                    } else {
+                        console.error('No se encontró el número de teléfono del dueño');
+                    }
+                })
+                .catch(error => console.error('Error al obtener el número de teléfono:', error));
         }
 
         function displayProductDetails(product) {
@@ -87,31 +117,40 @@
                         <img id="product-image" src="${product.thumbnail}" alt="${product.product_name}" class="img-fluid rounded">
                     </div>
 
-                    
                     <div class="details-specifications-section" id="product-details">
                         <div>
                             <h4>Descripción</h4>
-                            <p>
-                                ${product.description} <!-- Descripción del producto -->
-                            </p>
+                            <p>${product.description}</p>
                         </div>
                     </div>
                 </div>
 
-                <p class="price">$${product.price} MX</p> <!-- Precio del producto -->
+                <p class="prices">$${product.price} MX</p> 
 
-
+                <!-- Botón contactar con WhatsApp justo debajo del precio -->
+                <button class="button" id="contact-button">Contactar con vendedor</button>
+                <hr>
+                
                 <h4>Productos Relacionados</h4>
                 <div class="related-products" id="related-products-container"></div>
-                
-                <!-- Botón vacío, sin funcionalidad -->
-                <button class="button">
-                    Agregar al carrito
-                </button>
-                <hr>
             `;
 
             loadRelatedProducts(product.category_id, product.stores.store_id);
+
+            // Agregar el evento al botón de contacto
+            document.getElementById('contact-button').addEventListener('click', function() {
+                if (storePhoneNumber) {
+                    const productImageUrl = product.thumbnail; // Obtenemos la URL de la imagen del producto
+                    const mensaje = `Hola!, me gustaría tener más información de este producto. \nImagen: ${productImageUrl}`;
+
+                    const whatsappLink = `https://wa.me/+52${storePhoneNumber}?text=${encodeURIComponent(mensaje)}`;
+
+                    // Abrir WhatsApp
+                    window.open(whatsappLink, '_blank');
+                } else {
+                    console.log('Número de teléfono aún no disponible');
+                }
+            });
         }
 
         function loadRelatedProducts(categoryId, storeId) {
@@ -149,7 +188,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            showSpinner();  // Mostrar el spinner
+            showSpinner();
 
             if (productId) {
                 fetchProductDetails();
@@ -178,7 +217,7 @@
                 productDetails.style.display = 'block';
             }
 
-            hideSpinner();  // Ocultar el spinner después de cargar los datos
+            hideSpinner(); 
         }
     </script>
 </body>

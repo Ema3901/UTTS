@@ -149,7 +149,7 @@ body {
     opacity: 1;
 }
 
-.price {
+.prices {
     font-size: 1.5rem; /* Tamaño más grande */
     font-weight: 700; /* Negrita */
     padding: 10px 15px; /* Espaciado alrededor */
@@ -158,3 +158,98 @@ body {
     margin-top: 10px; /* Separación superior */
     display: inline-block; /* Para que se ajuste a su contenido */
 }
+
+        /* Contenedor para los productos relacionados */
+        .related-products {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 20px;
+            justify-content: start;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-top: 20px;
+        }
+
+        .related-products .product-card {
+            width: 200px;
+            height: 300px;
+            background: #fff;
+            padding: 16px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.2s ease-in-out;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        .related-products .product-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+        }
+
+        .related-products .product-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 12px 0;
+        }
+
+        .related-products .product-card .price {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .related-products .product-card:hover {
+            transform: scale(1.05);
+        }
+
+        /* Estilos para la alerta personalizada */
+        .custom-alert {
+            display: none; /* Inicialmente oculta */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .alert-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #alert-message {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        #alert-buttons {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+        }
+
+        .close-alert {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .close-alert:hover {
+            background-color: #08b972;
+        }
