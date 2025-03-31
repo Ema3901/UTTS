@@ -102,3 +102,59 @@ body {
 .button:hover {
     background: #08b972;
 }
+
+.product-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.tabs span.active {
+    color: #0ACF83;
+}
+
+.hidden-section {
+    display: none !important;
+}
+
+.product-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-image-slider,
+.details-specifications-section {
+    height: 320px; /* Tamaño fijo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.product-image-slider img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.details-specifications-section {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    padding: 16px;
+    text-align: left;
+}
+
+.active-description {
+    display: block;
+    opacity: 1;
+}
+
+.price {
+    font-size: 1.5rem; /* Tamaño más grande */
+    font-weight: 700; /* Negrita */
+    padding: 10px 15px; /* Espaciado alrededor */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    margin-top: 10px; /* Separación superior */
+    display: inline-block; /* Para que se ajuste a su contenido */
+}

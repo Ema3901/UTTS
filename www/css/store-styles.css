@@ -108,3 +108,62 @@ body {
     margin-left: auto;
     margin-right: auto;
 }
+
+.product-card .image-container {
+    width: 100%;
+    height: 160px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.product-card .image-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* Aseguramos que el contenedor de contacto se alinee al centro */
+/* Aseguramos que el contenedor de contacto se alinee al centro */
+#contact-vendor-container {
+display: flex;
+justify-content: center;  /* Centrar el contenido horizontalmente */
+align-items: center;      /* Centrar el contenido verticalmente */
+width: 100%;
+padding-left: 10px;        /* Un poco de separación de los bordes */
+padding-right: 10px;       /* Un poco de separación de los bordes */
+box-sizing: border-box;    /* Asegurarnos de que el padding no afecte el ancho */
+}
+
+/* Estilos para el botón de contactar con el vendedor */
+.contact-button {
+background-color: #0ACF83; /* Color verde característico de tu app */
+color: white;
+padding: 12px 25px; /* Aumentamos el padding para separarlo más de los lados */
+text-align: center;
+border-radius: 12px; /* Redondear los bordes del botón */
+font-size: 18px;
+cursor: pointer;
+margin-top: 30px; /* Separarlo un poco de los productos */
+margin-bottom: 20px; /* Añadir espacio debajo del botón */
+width: 100%; /* Esto hace que el botón ocupe el 100% de su contenedor */
+box-shadow: none; /* Eliminar sombra para quitar el borde negro */
+border: none; /* Eliminar cualquier borde */
+transition: background-color 0.3s ease, transform 0.3s ease; /* Efectos de transición */
+}
+
+/* Cambiar color al pasar el cursor (hover) */
+.contact-button:hover {
+background-color: #128c7e; /* Color más oscuro cuando se pasa el cursor */
+transform: translateY(-3px); /* Efecto de desplazamiento al hacer hover */
+}
+
+/* Efecto de foco (focus) para cuando se hace clic en el botón */
+.contact-button:focus {
+outline: none; /* Eliminar el borde del foco */
+box-shadow: 0 0 8px rgba(10, 207, 131, 0.7); /* Resaltar con un borde suave */
+}

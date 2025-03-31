@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tienda del Vendedor</title>
     <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
@@ -11,26 +11,6 @@
 
     <!-- Incluir el archivo spinner.css -->
     <link rel="stylesheet" href="/www/css/spinner.css" />
-
-    <style>
-        .product-card .image-container {
-            width: 100%;
-            height: 160px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f4f4f4;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .product-card .image-container img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-    </style>
 </head>
 <body>
     <!-- Spinner -->
@@ -49,6 +29,13 @@
 
     <div class="product-grid" id="store-products">
         <!-- Productos cargados dinámicamente -->
+    </div>
+
+    <!-- Botón de contacto con el vendedor -->
+    <div id="contact-vendor-container" style="display: none;">
+        <button class="contact-button" id="contact-vendor-btn">
+            Contactar con el Vendedor
+        </button>
     </div>
 
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
@@ -83,6 +70,14 @@
                             : '/www/img/banner-store.jpg';
 
                         document.getElementById('store-banner').src = bannerImg;
+
+                        // Obtener el user_id del propietario de la tienda (ahora correctamente de data.users.user_id)
+                        const ownerId = data.users?.user_id;
+                        if (ownerId) {
+                            fetchUserPhoneNumber(ownerId);  // Pasar el user_id correcto
+                        } else {
+                            console.error('No se pudo obtener el user_id del propietario de la tienda');
+                        }
                     } else {
                         document.getElementById('store-name').textContent = 'Tienda no encontrada';
                     }
@@ -147,6 +142,29 @@
                     console.error('Error al obtener productos de la tienda:', err);
                     container.innerHTML = '<p style="text-align:center; width:100%">Error al cargar productos.</p>';
                     hideSpinner();  // Ocultar el spinner en caso de error
+                });
+        }
+
+        // Función para obtener el número de teléfono del propietario de la tienda
+        function fetchUserPhoneNumber(userId) {
+            fetch(`https://uttsmarket.bsite.net/api/users/read/${userId}`)
+                .then(res => res.json())
+                .then(userData => {
+                    if (userData && userData.phone_number) {
+                        const phoneNumber = '+52' + userData.phone_number; // Agregar lada mexicana
+                        const whatsappLink = `https://wa.me/${phoneNumber}`;
+
+                        // Mostrar el botón de contacto
+                        document.getElementById('contact-vendor-container').style.display = 'block';
+
+                        // Asignar el enlace a WhatsApp al botón
+                        document.getElementById('contact-vendor-btn').onclick = function() {
+                            window.open(whatsappLink, '_blank');
+                        };
+                    }
+                })
+                .catch(err => {
+                    console.error('Error al obtener número de teléfono del usuario:', err);
                 });
         }
     </script>

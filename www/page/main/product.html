@@ -11,54 +11,6 @@
 
     <!-- Incluir el archivo spinner.css -->
     <link rel="stylesheet" href="/www/css/spinner.css" />
-    
-    <style>
-        .product-container {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .tabs span.active {
-            color: #0ACF83;
-        }
-
-        .hidden-section {
-            display: none !important;
-        }
-
-        .product-content {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-image-slider,
-        .details-specifications-section {
-            height: 320px; /* Tamaño fijo */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .product-image-slider img {
-            max-height: 100%;
-            max-width: 100%;
-            object-fit: contain;
-            border-radius: 12px;
-        }
-
-        .details-specifications-section {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            padding: 16px;
-            text-align: left;
-        }
-
-        .active-description {
-            display: block;
-            opacity: 1;
-        }
-    </style>
 </head>
 <body>
     <!-- Spinner -->
@@ -134,37 +86,27 @@
                     <div class="product-image-slider" id="product-images">
                         <img id="product-image" src="${product.thumbnail}" alt="${product.product_name}" class="img-fluid rounded">
                     </div>
+
                     
                     <div class="details-specifications-section" id="product-details">
                         <div>
                             <h4>Descripción</h4>
                             <p>
-                                Este producto es de alta calidad y tiene características excepcionales que lo hacen ideal para ti.
+                                ${product.description} <!-- Descripción del producto -->
                             </p>
-                            <h4>Especificaciones Técnicas</h4>
-                            <table class="spec-table">
-                                <tr>
-                                    <th>Peso</th>
-                                    <td>250g</td>
-                                </tr>
-                                <tr>
-                                    <th>Material</th>
-                                    <td>Algodón</td>
-                                </tr>
-                                <tr>
-                                    <th>Color</th>
-                                    <td>Rojo</td>
-                                </tr>
-                            </table>
                         </div>
                     </div>
                 </div>
 
+                <p class="price">$${product.price} MX</p> <!-- Precio del producto -->
+
+
                 <h4>Productos Relacionados</h4>
                 <div class="related-products" id="related-products-container"></div>
                 
-                <button class="button" onclick="contactarVendedor('+528998733689', '${product.product_name}', document.getElementById('product-image').src)">
-                    Contactar con el vendedor
+                <!-- Botón vacío, sin funcionalidad -->
+                <button class="button">
+                    Agregar al carrito
                 </button>
                 <hr>
             `;
@@ -204,14 +146,6 @@
                     `).join('');
                 })
                 .catch(error => console.error('Error al obtener productos de la tienda:', error));
-        }
-
-        function contactarVendedor(numero, producto, imagen) {
-            let mensaje = `Me interesa este producto: ${producto}, más información por favor.`;
-            let urlImagen = encodeURIComponent(imagen);
-            let urlProducto = encodeURIComponent("http://127.0.0.1:5500/www/page/main/product.html");
-            let enlace = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}%0AImagen: ${urlImagen}%0ALink del producto: ${urlProducto}`;
-            window.open(enlace, '_blank');
         }
 
         document.addEventListener('DOMContentLoaded', function () {
