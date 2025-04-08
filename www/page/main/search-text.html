@@ -134,60 +134,50 @@
     <script src="/www/js/spinner.js"></script>
 
     <script>
-        let searchQuery = '';  // Variable para almacenar la consulta de búsqueda
-        let category_id = '';  // Variable para almacenar la categoría seleccionada, por defecto vacío
-
-        // Función para realizar la solicitud a la API con los filtros y la búsqueda
+        let searchQuery = '';
+    
         function fetchProducts() {
             const name = searchQuery;
-            const minPrice = 0;  // No hay límite en el precio mínimo
-            const maxPrice = 999999; // No hay límite en el precio máximo
-            const page = 1;  // Página de resultados
-            const perPage = 10;  // Número de productos por página
-            const sortBy = 'price'; // Ordenar por precio, puedes cambiarlo a 'rating' o 'name'
-
-            // Si no se ha seleccionado ninguna categoría, dejamos category_id vacío
-            const url = `https://uttsmarket.bsite.net/api/products/filter?category_id=${category_id || ''}&name=${name}&minPrice=${minPrice}&maxPrice=${maxPrice}&sortBy=${sortBy}&page=${page}&perPage=${perPage}`;
-
+            const minPrice = 0;
+            const maxPrice = 999999;
+            const sortBy = 'price';
+            const status = 'available'; // requerido por la API
+            const category_id = ''; // ignoramos el filtro por categoría
+    
+            const url = `https://uttsmarket.bsite.net/api/products/filter?category_id=${category_id}&name=${encodeURIComponent(name)}&minPrice=${minPrice}&maxPrice=${maxPrice}&sortBy=${sortBy}&status=${status}`;
+    
+            console.log("🔍 URL solicitada:", url);
+    
             fetch(url)
-                .then(response => response.json())
+                .then(response => {
+                    console.log("📦 Respuesta cruda:", response);
+                    return response.json();
+                })
                 .then(data => {
-                    // Verificar si la respuesta es un array
+                    console.log("✅ Data recibida:", data);
                     if (Array.isArray(data)) {
-                        displayProducts(data);  // Mostrar los productos obtenidos
+                        displayProducts(data);
+                    } else if (data.products && Array.isArray(data.products)) {
+                        displayProducts(data.products);
                     } else {
-                        console.error('Error: La respuesta de la API no es un array.', data);
-                        
-                        // Si la respuesta es un objeto con productos en una propiedad
-                        if (data.products && Array.isArray(data.products)) {
-                            displayProducts(data.products); // Usar la propiedad que contiene los productos
-                        } else {
-                            console.error('Error: La API no está devolviendo los productos correctamente.', data);
-                        }
+                        console.error('⚠️ Respuesta inesperada:', data);
                     }
                 })
-                .catch(error => console.error('Error fetching products:', error));
+                .catch(error => console.error('❌ Error en fetchProducts:', error));
         }
-
-        // Función para cargar los productos basados en la búsqueda
+    
         function loadSearchResults(query) {
-            searchQuery = normalizeString(query);  // Normalizar la búsqueda
-            fetchProducts();  // Realizamos la llamada a la API con los filtros y la búsqueda
+            searchQuery = query.trim();
+            console.log("🔤 Búsqueda:", searchQuery);
+            fetchProducts();
         }
-
-        // Función para normalizar la cadena de búsqueda (eliminar acentos y convertir a minúsculas)
-        function normalizeString(str) {
-            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-        }
-
-        // Función para aplicar los filtros
+    
         function applyFilters(filteredProducts) {
             const activeFilters = [];
             document.querySelectorAll('.filter-keyword.active').forEach(active => {
                 activeFilters.push(active.textContent.trim());
             });
-
-            // Aplicar filtros según los seleccionados
+    
             if (activeFilters.includes('Mayor precio')) {
                 filteredProducts.sort((a, b) => b.price - a.price);
             }
@@ -198,13 +188,11 @@
                 filteredProducts.sort((a, b) => b.average_rating - a.average_rating);
             }
             if (activeFilters.includes('Nuevo')) {
-                // Ordenar por fecha (updated_at) de más nuevo a más viejo
                 filteredProducts.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
             }
-
-            // Actualizar la vista con los productos filtrados
+    
             const resultsContainer = document.getElementById('results-container');
-            resultsContainer.innerHTML = '';  // Limpiar antes de mostrar resultados
+            resultsContainer.innerHTML = '';
             filteredProducts.forEach(product => {
                 if (product.product_id) {
                     resultsContainer.innerHTML += `
@@ -217,68 +205,45 @@
                             <p class="rating"><i class="fa fa-star"></i> ${product.average_rating} Reseñas</p>
                         </div>
                     `;
-                } else {
-                    console.error("El producto no tiene una ID válida:", product);
                 }
             });
         }
-
-        // Función para mostrar los productos obtenidos de la API
+    
         function displayProducts(products) {
             const resultsContainer = document.getElementById('results-container');
-            resultsContainer.innerHTML = '';  // Limpiar antes de cargar nuevos productos
-
+            resultsContainer.innerHTML = '';
+    
             if (products.length === 0) {
                 resultsContainer.innerHTML = '<p>No se encontraron productos para esta búsqueda.</p>';
                 return;
             }
-
-            const filteredProducts = products.filter(product => {
-                // Convertir nombre y descripción a minúsculas para hacer la búsqueda insensible a mayúsculas/minúsculas
-                const productName = normalizeString(product.product_name);
-                const productDescription = normalizeString(product.description);
-
-                // Verificar si la búsqueda (query) está presente en el nombre o en la descripción
-                return productName.includes(searchQuery) || productDescription.includes(searchQuery);
-            });
-
-            applyFilters(filteredProducts);  // Aplicar los filtros después de la búsqueda
+    
+            applyFilters(products);
         }
-
+    
         document.addEventListener('DOMContentLoaded', function () {
             const query = new URLSearchParams(window.location.search).get('q') || '';
             document.getElementById('search-input').value = query;
             loadSearchResults(query);
-
-            // Manejo de filtros por categorías y orden
+    
+            document.getElementById('search-input').addEventListener('input', function () {
+                loadSearchResults(this.value);
+            });
+    
             const filterOptions = document.querySelectorAll('.filter-keyword');
             filterOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    // Si el filtro ya está activo, desactivarlo
+                option.addEventListener('click', function () {
                     if (this.classList.contains('active')) {
                         this.classList.remove('active');
                     } else {
-                        // Desactivar todos los filtros y activar el seleccionado
                         filterOptions.forEach(opt => opt.classList.remove('active'));
                         this.classList.add('active');
                     }
-                    
-                    // Cambiar la categoría seleccionada (ajustar el category_id)
-                    if (this.id === 'popularidad-filter') {
-                        category_id = '';  // Ropa, por ejemplo
-                    } else if (this.id === 'nuevo-filter') {
-                        category_id = '';  // Dejar vacío para no filtrar por categoría
-                    }
-                    // Recargar productos aplicando los filtros
-                    loadSearchResults(searchQuery); // Recargar productos aplicando los filtros
+                    loadSearchResults(searchQuery);
                 });
-            });
-
-            // Actualizar productos cuando se cambia la búsqueda
-            document.getElementById('search-input').addEventListener('input', function() {
-                loadSearchResults(this.value);
             });
         });
     </script>
+    
 </body>
 </html>

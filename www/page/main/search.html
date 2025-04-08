@@ -8,20 +8,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="/www/css/styles.css">
     <link rel="stylesheet" href="/www/css/search-styles.css">
-
-    <!-- Incluir el archivo spinner.css -->
     <link rel="stylesheet" href="/www/css/spinner.css" />
 
     <style>
-        /* Acomodar los textos de las búsquedas de arriba hacia abajo */
         .last-search {
             display: flex;
-            flex-direction: column-reverse; /* Mostrar desde arriba */
+            flex-direction: column-reverse;
         }
     </style>
 </head>
 <body>
-    <!-- Spinner -->
     <div id="spinner" class="spinner-container">
         <div class="spinner"></div>
     </div>
@@ -37,46 +33,41 @@
         <div class="last-search" id="last-search-list">
             <!-- Se llenará dinámicamente -->
         </div>
-
     </div>
 
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="/www/js/back-button.js"></script>
     <script src="/www/js/navbar.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <script src="/www/js/spinner.js"></script>
 
     <script>
-        // Función para agregar una búsqueda al localStorage
         function addToLastSearch(query) {
             let lastSearches = JSON.parse(localStorage.getItem('lastSearches')) || [];
             if (!lastSearches.includes(query)) {
                 lastSearches.push(query);
                 if (lastSearches.length > 5) {
-                    lastSearches.shift(); // Eliminar la búsqueda más antigua si hay más de 5
+                    lastSearches.shift();
                 }
                 localStorage.setItem('lastSearches', JSON.stringify(lastSearches));
             }
         }
 
-        // Función para agregar un producto al localStorage (productos vistos)
         function addToPopularProducts(product) {
             let popularProducts = JSON.parse(localStorage.getItem('popularProducts')) || [];
             if (!popularProducts.some(p => p.id === product.id)) {
                 popularProducts.push(product);
                 if (popularProducts.length > 20) {
-                    popularProducts.shift(); // Eliminar el producto más antiguo si hay más de 5
+                    popularProducts.shift();
                 }
                 localStorage.setItem('popularProducts', JSON.stringify(popularProducts));
             }
         }
 
-        // Función para cargar las últimas búsquedas desde localStorage
         function loadLastSearches() {
             const lastSearches = JSON.parse(localStorage.getItem('lastSearches')) || [];
             const lastSearchList = $('#last-search-list');
-            lastSearchList.empty(); // Limpiar el contenedor antes de agregar nuevas búsquedas
+            lastSearchList.empty();
             lastSearches.forEach(search => {
                 lastSearchList.append(`
                     <div class="search-item" onclick="searchFromHistory('${search}')">
@@ -86,26 +77,23 @@
             });
         }
 
-        // Función para eliminar una búsqueda
         function removeSearch(query, event) {
-            event.stopPropagation(); // Evita que se ejecute el clic al eliminar
+            event.stopPropagation();
             let lastSearches = JSON.parse(localStorage.getItem('lastSearches')) || [];
             lastSearches = lastSearches.filter(search => search !== query);
             localStorage.setItem('lastSearches', JSON.stringify(lastSearches));
-            loadLastSearches(); // Recargar las búsquedas
+            loadLastSearches();
         }
 
-        // Función para realizar la búsqueda desde el historial
         function searchFromHistory(query) {
-            $('#search-input').val(query); // Colocar el término de búsqueda en el input
-            window.location.href = `search-text.html?q=${encodeURIComponent(query)}`; // Realizar la búsqueda
+            $('#search-input').val(query);
+            window.location.href = `search-text.html?q=${encodeURIComponent(query)}`;
         }
 
-        // Función para cargar productos vistos desde localStorage
         function loadPopularProducts() {
             const popularProducts = JSON.parse(localStorage.getItem('popularProducts')) || [];
             const popularProductsList = $('#popular-products-list');
-            popularProductsList.empty(); // Limpiar el contenedor antes de agregar los productos
+            popularProductsList.empty();
             popularProducts.forEach(product => {
                 popularProductsList.append(`
                     <div class="product-item" onclick="viewProduct(${product.id})">
@@ -120,36 +108,34 @@
             });
         }
 
-        // Función para ver el producto
         function viewProduct(productId) {
-            window.location.href = `product.html?id=${productId}`; // Redirigir al producto
+            window.location.href = `product.html?id=${productId}`;
         }
 
-        // Función para manejar la búsqueda
         $('#search-input').on('keypress', function(event) {
             if (event.key === 'Enter') {
-                const searchQuery = encodeURIComponent(this.value.trim()); // Sanitiza la búsqueda
-                if (searchQuery) {
-                    addToLastSearch(searchQuery); // Guardar la búsqueda en localStorage
-                    showSpinner(); // Mostrar el spinner mientras se realizan las búsquedas
-                    window.location.href = `search-text.html?q=${searchQuery}`;
+                const rawQuery = this.value.trim();
+                const encodedQuery = encodeURIComponent(rawQuery);
+                if (rawQuery) {
+                    addToLastSearch(rawQuery); // Guardar sin encodeURIComponent
+                    showSpinner();
+                    window.location.href = `search-text.html?q=${encodedQuery}`;
                     addToPopularProducts({
-                        id: 1,  // Aquí debes poner el id del producto correspondiente
+                        id: 1,
                         name: 'Café de Gengar',
                         image: '/www/img/food-placeholder1.jpg',
                         price: 50,
                         rating: 4.6,
                         reviews: 86
-                    }); // Guardar el producto en productos vistos al realizar la búsqueda
+                    });
                 }
             }
         });
 
-        // Cargar las últimas búsquedas y productos populares al cargar la página
         $(document).ready(function() {
             loadLastSearches();
             loadPopularProducts();
-            hideSpinner(); // Ocultar el spinner después de cargar la página
+            hideSpinner();
         });
     </script>
 </body>
