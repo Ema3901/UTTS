@@ -14,11 +14,71 @@
     body { background: #f7f7f7; padding: 20px; }
     h2 { color: var(--utt-green); text-align: center; margin-bottom: 20px; }
     label { font-weight: bold; margin-top: 10px; }
-    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-top: 5px; margin-bottom: 15px; }
-    button { background-color: var(--utt-green); color: white; padding: 10px; border: none; width: 100%; border-radius: 6px; font-weight: bold; }
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; }
-    .modal-content { background: white; padding: 20px; border-radius: 10px; text-align: center; }
+    input, select, textarea {
+      width: 100%; padding: 10px; border: 1px solid #ccc;
+      border-radius: 5px; margin-top: 5px; margin-bottom: 15px;
+    }
+    button {
+      background-color: var(--utt-green); color: white;
+      padding: 10px; border: none; width: 100%;
+      border-radius: 6px; font-weight: bold;
+    }
+    #addAnotherProductBtn {
+      background-color: #e0e0e0; color: #333;
+      margin-top: 10px; font-weight: bold;
+      margin-bottom: 12px; /* 👈 Agregado para separar del botón de guardar */
+
+    }
+    .modal {
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; background: rgba(0,0,0,0.4);
+      justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background: white; padding: 20px; border-radius: 10px;
+      text-align: center;
+    }
+    .alert-temporal {
+      background-color: #d1e7dd;
+      color: #0f5132;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: 500;
+      margin-top: 10px;
+      display: none;
+    }
+    .preview-container {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .preview-container h4 {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 15px;
+    }
+    .preview-item {
+      border-bottom: 1px solid #ccc;
+      padding: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .preview-item:last-child {
+      border-bottom: none;
+    }
+    .preview-item button {
+      background: red;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
   </style>
+
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
   <script src="/www/js/firebase.js"></script>
@@ -26,11 +86,9 @@
 <body>
   <nav id="navbar-container"></nav>
 
-    <!-- spinner.html -->
   <div id="spinner" class="spinner-container">
     <div class="spinner"></div>
   </div>
-
 
   <div class="container">
     <h2>Agregar Producto</h2>
@@ -57,29 +115,109 @@
       <label for="productStock">Stock</label>
       <input type="number" id="productStock" min="1" max="99" maxlength="2" required>
 
-      <button type="submit">Guardar Producto</button>
+      <button id="addAnotherProductBtn" type="button">Agregar otro producto</button>
+      <div class="alert-temporal" id="tempAlert">Producto guardado temporalmente. Puedes agregar más productos antes de guardar.</div>
+
+      <div class="preview-container" id="previewContainer" style="display:none;">
+        <h4>Productos pendientes por guardar:</h4>
+        <div id="previewList"></div>
+      </div>
+
+      <button type="submit">Guardar productos</button>
     </form>
   </div>
 
   <div id="successModal" class="modal">
     <div class="modal-content">
-      <h2>Producto guardado con éxito</h2>
-      <p>El producto ha sido añadido a tu tienda.</p>
+      <h2>Productos guardados con éxito</h2>
+      <p>Los productos han sido añadidos a tu tienda.</p>
     </div>
   </div>
 
   <script>
-    document.getElementById("addProductForm").addEventListener("submit", async function(e) {
+    const productsToSave = [];
+
+    const getCategoryName = (id) => {
+      switch(id) {
+        case 1: return "Comida";
+        case 2: return "Tecnología";
+        case 3: return "Ropa";
+        default: return "Otro";
+      }
+    };
+
+    const showAlert = () => {
+      const alertBox = document.getElementById("tempAlert");
+      alertBox.style.display = "block";
+      setTimeout(() => { alertBox.style.display = "none"; }, 3000);
+    };
+
+    const updatePreview = () => {
+      const container = document.getElementById("previewContainer");
+      const list = document.getElementById("previewList");
+      list.innerHTML = "";
+
+      if (productsToSave.length === 0) {
+        container.style.display = "none";
+        return;
+      }
+
+      productsToSave.forEach((p, i) => {
+        const item = document.createElement("div");
+        item.className = "preview-item";
+        item.innerHTML = `
+          <div>
+            <strong>${i + 1}. ${p.name}</strong><br>
+            Precio: $${p.price.toFixed(2)} | Stock: ${p.stock} | Categoría: ${getCategoryName(p.catId)}
+          </div>
+          <button onclick="removeProduct(${i})">Eliminar</button>
+        `;
+        list.appendChild(item);
+      });
+
+      container.style.display = "block";
+    };
+
+    window.removeProduct = function(index) {
+      productsToSave.splice(index, 1);
+      updatePreview();
+    };
+
+    document.getElementById("addAnotherProductBtn").addEventListener("click", function () {
+      const image = document.getElementById("productImage").files[0];
+      const name = document.getElementById("productTitle").value.trim();
+      const price = parseFloat(document.getElementById("productPrice").value);
+      const desc = document.getElementById("productDescription").value.trim();
+      const catId = parseInt(document.getElementById("productCategory").value);
+      const stock = parseInt(document.getElementById("productStock").value);
+
+      if (!image || !name || !price || !desc || !catId || !stock) {
+        alert("Por favor llena todos los campos antes de agregar otro producto.");
+        return;
+      }
+
+      productsToSave.push({ image, name, price, desc, catId, stock });
+      document.getElementById("addProductForm").reset();
+      showAlert();
+      updatePreview();
+    });
+
+    document.getElementById("addProductForm").addEventListener("submit", async function (e) {
       e.preventDefault();
       const user = JSON.parse(localStorage.getItem("user"));
       if (!user) return alert("Usuario no logueado");
 
       const imageFile = document.getElementById("productImage").files[0];
-      const productName = document.getElementById("productTitle").value.trim();
-      const price = parseFloat(document.getElementById("productPrice").value);
-      const description = document.getElementById("productDescription").value.trim();
-      const categoryId = parseInt(document.getElementById("productCategory").value);
-      const stock = parseInt(document.getElementById("productStock").value);
+      if (imageFile) {
+        productsToSave.push({
+          image: imageFile,
+          name: document.getElementById("productTitle").value.trim(),
+          price: parseFloat(document.getElementById("productPrice").value),
+          desc: document.getElementById("productDescription").value.trim(),
+          catId: parseInt(document.getElementById("productCategory").value),
+          stock: parseInt(document.getElementById("productStock").value)
+        });
+      }
 
       try {
         const storeRes = await fetch(`https://uttsmarket.bsite.net/api/stores/readByUser/${user.user_id}`);
@@ -88,36 +226,39 @@
         const storeId = store?.store_id;
         if (!storeId) return alert("Tienda no encontrada");
 
-        const imageName = `${Date.now()}_${Math.floor(Math.random() * 10000)}.jpg`;
-        const ref = firebase.storage().ref().child(`product_images/${imageName}`);
-        await ref.put(imageFile);
-        const imageUrl = await ref.getDownloadURL();
+        for (const prod of productsToSave) {
+          const imageName = `${Date.now()}_${Math.floor(Math.random() * 10000)}.jpg`;
+          const ref = firebase.storage().ref().child(`product_images/${imageName}`);
+          await ref.put(prod.image);
+          const imageUrl = await ref.getDownloadURL();
 
-        const body = {
-          store_id: storeId,
-          product_name: productName,
-          description: description,
-          price: price,
-          category_id: categoryId,
-          stock: stock,
-          status: "available",
-          is_for_trade: 0,
-          average_rating: 3,
-          thumbnail: imageUrl
-        };
+          const body = {
+            store_id: storeId,
+            product_name: prod.name,
+            description: prod.desc,
+            price: prod.price,
+            category_id: prod.catId,
+            stock: prod.stock,
+            status: "available",
+            is_for_trade: 0,
+            average_rating: 3,
+            thumbnail: imageUrl
+          };
 
-        const response = await fetch("https://uttsmarket.bsite.net/api/products/create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
+          const response = await fetch("https://uttsmarket.bsite.net/api/products/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          });
 
-        if (!response.ok) throw new Error("Error al crear el producto");
+          if (!response.ok) throw new Error("Error al crear uno de los productos");
+        }
+
         document.getElementById("successModal").style.display = "flex";
         setTimeout(() => window.location.href = "edit-store.html", 3000);
       } catch (error) {
-        console.error("Error al agregar producto:", error);
-        alert("Error al agregar el producto");
+        console.error("Error al guardar productos:", error);
+        alert("Hubo un error al guardar los productos");
       }
     });
   </script>
@@ -126,6 +267,5 @@
   <script src="/www/js/back-button.js"></script>
   <script src="/www/js/navbar.js"></script>
   <script src="/www/js/spinner.js"></script>
-
 </body>
 </html>

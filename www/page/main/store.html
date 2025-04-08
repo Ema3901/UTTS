@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="/www/css/styles.css">
     <link rel="stylesheet" href="/www/css/store-styles.css">
-
-    <!-- Incluir el archivo spinner.css -->
     <link rel="stylesheet" href="/www/css/spinner.css" />
 </head>
 <body>
@@ -31,17 +29,16 @@
         <!-- Productos cargados dinámicamente -->
     </div>
 
-    <!-- Botón de contacto con el vendedor -->
+    <!-- Botón para ver ubicación en el mapa -->
     <div id="contact-vendor-container" style="display: none;">
-        <button class="contact-button" id="contact-vendor-btn">
-            Contactar con el Vendedor
+        <button class="contact-button" id="view-map-btn">
+            Ver ubicación en el mapa
         </button>
     </div>
 
     <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="/www/js/back-button.js"></script>
     <script src="/www/js/navbar.js"></script>
-
     <script src="/www/js/spinner.js"></script>
 
     <script>
@@ -50,7 +47,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             if (storeId) {
-                showSpinner();  // Mostrar el spinner mientras cargamos la tienda
+                showSpinner();
                 fetchStoreDetails(storeId);
                 fetchStoreProducts(storeId);
             } else {
@@ -71,10 +68,12 @@
 
                         document.getElementById('store-banner').src = bannerImg;
 
-                        // Obtener el user_id del propietario de la tienda (ahora correctamente de data.users.user_id)
                         const ownerId = data.users?.user_id;
                         if (ownerId) {
-                            fetchUserPhoneNumber(ownerId);  // Pasar el user_id correcto
+                            document.getElementById('contact-vendor-container').style.display = 'block';
+                            document.getElementById('view-map-btn').onclick = function () {
+                                window.location.href = `mapa.html?store_id=${storeId}`;
+                            };
                         } else {
                             console.error('No se pudo obtener el user_id del propietario de la tienda');
                         }
@@ -97,7 +96,7 @@
                 .then(products => {
                     if (!Array.isArray(products) || products.length === 0) {
                         container.innerHTML = '<p style="text-align:center; width:100%">No hay productos en esta tienda.</p>';
-                        hideSpinner();  // Ocultar el spinner cuando los productos se hayan cargado
+                        hideSpinner();
                         return;
                     }
 
@@ -130,41 +129,18 @@
                     Promise.all(promises)
                         .then(() => {
                             container.innerHTML = productCards.join('');
-                            hideSpinner();  // Ocultar el spinner después de cargar los productos
+                            hideSpinner();
                         })
                         .catch(error => {
                             console.error('Error al cargar detalles de los productos:', error);
                             container.innerHTML = '<p style="text-align:center; width:100%">Error al cargar productos.</p>';
-                            hideSpinner();  // Ocultar el spinner en caso de error
+                            hideSpinner();
                         });
                 })
                 .catch(err => {
                     console.error('Error al obtener productos de la tienda:', err);
                     container.innerHTML = '<p style="text-align:center; width:100%">Error al cargar productos.</p>';
-                    hideSpinner();  // Ocultar el spinner en caso de error
-                });
-        }
-
-        // Función para obtener el número de teléfono del propietario de la tienda
-        function fetchUserPhoneNumber(userId) {
-            fetch(`https://uttsmarket.bsite.net/api/users/read/${userId}`)
-                .then(res => res.json())
-                .then(userData => {
-                    if (userData && userData.phone_number) {
-                        const phoneNumber = '+52' + userData.phone_number; // Agregar lada mexicana
-                        const whatsappLink = `https://wa.me/${phoneNumber}`;
-
-                        // Mostrar el botón de contacto
-                        document.getElementById('contact-vendor-container').style.display = 'block';
-
-                        // Asignar el enlace a WhatsApp al botón
-                        document.getElementById('contact-vendor-btn').onclick = function() {
-                            window.open(whatsappLink, '_blank');
-                        };
-                    }
-                })
-                .catch(err => {
-                    console.error('Error al obtener número de teléfono del usuario:', err);
+                    hideSpinner();
                 });
         }
     </script>

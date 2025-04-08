@@ -8,14 +8,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link rel="stylesheet" href="/www/css/styles.css" />
   <link rel="stylesheet" href="/www/css/create-store-styles.css" />
+  <link rel="stylesheet" href="/www/css/spinner.css" />
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
   <script src="/www/js/firebase.js"></script>
 
-  <!-- Incluir el archivo spinner.css -->
-  <link rel="stylesheet" href="/www/css/spinner.css" />
-  
   <style>
     :root { --utt-green: #0ACF83; }
     .container { max-width: 600px; margin-top: 20px; margin-bottom: 40px; }
@@ -27,32 +25,19 @@
     .btn-primary { background-color: var(--utt-green); border-color: var(--utt-green); font-weight: bold; }
     .btn-primary:hover { background-color: #09b673; border-color: #09b673; }
     form { margin-bottom: 50px; }
-
     .toast-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.5); display: flex; align-items: center;
+      justify-content: center; z-index: 9999;
     }
-
     .toast-message {
-      background: white;
-      padding: 30px 50px;
-      border-radius: 12px;
-      box-shadow: 0 2px 15px rgba(0,0,0,0.3);
-      font-size: 18px;
-      font-weight: bold;
-      color: var(--utt-green);
-      text-align: center;
+      background: white; padding: 30px 50px; border-radius: 12px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.3); font-size: 18px;
+      font-weight: bold; color: var(--utt-green); text-align: center;
     }
   </style>
 </head>
 <body>
-  <!-- Spinner -->
   <div id="spinner" class="spinner-container">
     <div class="spinner"></div>
   </div>
@@ -79,6 +64,24 @@
         <div class="mb-3">
           <label for="storeBanner" class="form-label">Banner de la tienda</label>
           <input type="file" class="form-control" id="storeBanner" accept="image/*" required />
+        </div>
+      </div>
+
+      <div class="card">
+        <h5><i class="fa fa-map-marker-alt"></i> Ubicación y Horario</h5>
+        <div class="mb-3">
+          <label for="storeLocation" class="form-label">Ubicación</label>
+          <select class="form-select" id="storeLocation" required>
+            <!-- Se llenará con JS -->
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Horario (formato 24 hrs)</label>
+          <div class="d-flex gap-2">
+            <input type="time" class="form-control" id="scheduleStart" required />
+            <span class="align-self-center"> - </span>
+            <input type="time" class="form-control" id="scheduleEnd" required />
+          </div>
         </div>
       </div>
 
@@ -140,61 +143,78 @@
       setTimeout(() => {
         overlay.style.display = "none";
         window.location.href = "user.html";
-      }, 10000);
+      }, 5000);
     }
+
+    // Cargar ubicaciones fijas
+    const ubicacionesFijas = [
+      { location_id: 1, location_name: "Entrada a la UTTN" },
+      { location_id: 2, location_name: "Edificio A" },
+      { location_id: 3, location_name: "Edificio B" },
+      { location_id: 4, location_name: "CEIT" },
+      { location_id: 5, location_name: "Edificio E" },
+      { location_id: 6, location_name: "Estacionamiento Meca" },
+      { location_id: 7, location_name: "Estacionamiento edificio B" },
+      { location_id: 8, location_name: "Estacionamiento CEIT" }
+    ];
+    const select = document.getElementById("storeLocation");
+    select.innerHTML = '<option value="">Selecciona una ubicación</option>';
+    ubicacionesFijas.forEach(loc => {
+      const option = document.createElement("option");
+      option.value = loc.location_id;
+      option.textContent = loc.location_name;
+      select.appendChild(option);
+    });
 
     document.getElementById("storeForm").addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      const storeNameInput = document.getElementById("storeName").value.trim();
-      const storeDescriptionInput = document.getElementById("storeDescription").value.trim();
-      const storeBannerFile = document.getElementById("storeBanner").files[0];
+      const storeName = document.getElementById("storeName").value.trim();
+      const storeDescription = document.getElementById("storeDescription").value.trim();
+      const storeBanner = document.getElementById("storeBanner").files[0];
+      const locationId = parseInt(document.getElementById("storeLocation").value);
+      const scheduleStart = document.getElementById("scheduleStart").value;
+      const scheduleEnd = document.getElementById("scheduleEnd").value;
+      const schedule = `${scheduleStart} - ${scheduleEnd}`;
 
-      const productNameInput = document.getElementById("productName").value.trim();
-      const productPriceInput = parseFloat(document.getElementById("productPrice").value);
-      const productDescriptionInput = document.getElementById("productDescription").value.trim();
+      const productName = document.getElementById("productName").value.trim();
+      const productPrice = parseFloat(document.getElementById("productPrice").value);
+      const productDescription = document.getElementById("productDescription").value.trim();
       const categoryId = parseInt(document.getElementById("productCategory").value);
       const stock = parseInt(document.getElementById("productStock").value);
-      const productImageFile = document.getElementById("productImage").files[0];
-
-      if (!storeNameInput || !storeDescriptionInput || !storeBannerFile || !productNameInput || !productPriceInput || !productDescriptionInput || !productImageFile || !stock) {
-        return alert("Por favor, completa todos los campos.");
-      }
+      const productImage = document.getElementById("productImage").files[0];
 
       try {
-        const bannerUrl = await uploadImage(storeBannerFile, `store_banners/${generateImageName()}`);
+        const bannerUrl = await uploadImage(storeBanner, `store_banners/${generateImageName()}`);
 
-        const storeResponse = await fetch("https://uttsmarket.bsite.net/api/stores/create", {
+        const storeRes = await fetch("https://uttsmarket.bsite.net/api/stores/create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             user_id: user.user_id,
-            store_name: storeNameInput,
-            description: storeDescriptionInput,
+            store_name: storeName,
+            description: storeDescription,
             average_rating: 0,
-            banner_img: bannerUrl
+            banner_img: bannerUrl,
+            location: locationId,
+            schedule: schedule
           })
         });
 
-        const storeData = await storeResponse.json();
-        console.log("📦 Respuesta de creación de tienda:", storeData);
-
-        const storesRes = await fetch(`https://uttsmarket.bsite.net/api/stores/readByUser/${user.user_id}`);
-        const stores = await storesRes.json();
+        const stores = await fetch(`https://uttsmarket.bsite.net/api/stores/readByUser/${user.user_id}`).then(res => res.json());
         const storeId = stores[stores.length - 1]?.store_id;
+        if (!storeId) throw new Error("No se encontró el store_id");
 
-        if (!storeId) throw new Error("No se pudo obtener el ID de la tienda creada");
-
-        const productUrl = await uploadImage(productImageFile, `product_images/${generateImageName()}`);
+        const productUrl = await uploadImage(productImage, `product_images/${generateImageName()}`);
 
         await fetch("https://uttsmarket.bsite.net/api/products/create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             store_id: storeId,
-            product_name: productNameInput,
-            description: productDescriptionInput,
-            price: productPriceInput,
+            product_name: productName,
+            description: productDescription,
+            price: productPrice,
             category_id: categoryId,
             stock: stock,
             status: "available",
@@ -206,14 +226,13 @@
 
         showToastOverlay();
 
-      } catch (error) {
-        console.error("Error:", error);
-        alert("Error: " + error.message);
+      } catch (err) {
+        console.error("Error:", err);
+        alert("Hubo un error: " + err.message);
       }
     });
   </script>
 
-  <!-- Scripts -->
   <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
   <script src="/www/js/spinner.js"></script>
 </body>

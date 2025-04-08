@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ubicación de la Tienda</title>
+    
+    <link href="/www/public/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="/www/css/styles.css">
+    <link rel="stylesheet" href="/www/css/spinner.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+
+    <!-- Spinner -->
+    <div id="spinner" class="spinner-container">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav id="navbar-container"></nav>
+
+    <div style="text-align:center; margin-top: 20px;">
+        <h2 id="store-name">Cargando ubicación...</h2>
+    </div>
+
+    <div id="map" style="height: 400px; margin: 20px;"></div>
+
+    <!-- Sección de productos -->
+    <div class="container">
+        <h3 style="text-align:center; margin-top: 10px;">Productos disponibles</h3>
+        <div id="product-list" class="row justify-content-center" style="gap: 10px; padding: 10px;"></div>
+    </div>
+
+    <script src="/www/public/libs/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/www/js/navbar.js"></script>
+    <script src="/www/js/spinner.js"></script>
+    <script src="/www/js/back-button.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const storeId = urlParams.get('store_id');
+
+        document.addEventListener("DOMContentLoaded", () => {
+            showSpinner();
+
+            if (!storeId) {
+                alert("No se proporcionó store_id");
+                hideSpinner();
+                return;
+            }
+
+            console.log("Solicitando tienda con store_id:", storeId);
+
+            fetch(`https://uttsmarket.bsite.net/api/stores/read/${storeId}`)
+                .then(res => res.json())
+                .then(store => {
+                    console.log("Tienda obtenida:", store);
+                    const locationId = store.location;
+                    const horario = store.schedule && store.schedule.trim() !== "" 
+                                    ? store.schedule 
+                                    : "Horario no especificado";
+
+                    if (!locationId) {
+                        document.getElementById("store-name").innerHTML = `
+                            ${store.store_name}<br>
+                            <small>Ubicación no asignada - ${horario}</small>
+                        `;
+                        hideSpinner();
+                        return;
+                    }
+
+                    fetch(`https://uttsmarket.bsite.net/api/store_locations/readById/${locationId}`)
+                        .then(res => res.json())
+                        .then(loc => {
+                            console.log("Ubicación obtenida:", loc);
+
+                            if (!loc.cordinates || !loc.cordinates.includes(',')) {
+                                throw new Error("Las coordenadas no están definidas o tienen un formato inválido");
+                            }
+
+                            const [latStr, lngStr] = loc.cordinates.split(',').map(s => s.trim());
+                            const lat = parseFloat(latStr);
+                            const lng = parseFloat(lngStr);
+
+                            if (isNaN(lat) || isNaN(lng)) {
+                                throw new Error("Las coordenadas no son números válidos");
+                            }
+
+                            const nombreUbicacion = loc.location_name || "Ubicación no registrada";
+
+                            document.getElementById("store-name").innerHTML = `
+                                ${store.store_name}<br>
+                                <small>${nombreUbicacion} - ${horario}</small>
+                            `;
+
+                            const map = L.map('map').setView([lat, lng], 17);
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '© OpenStreetMap contributors'
+                            }).addTo(map);
+
+                            L.marker([lat, lng])
+                                .addTo(map)
+                                .bindPopup(`<b>${store.store_name}</b><br>${nombreUbicacion}`)
+                                .openPopup();
+
+                            hideSpinner();
+                            cargarProductos(storeId);
+                        })
+                        .catch(err => {
+                            console.error('Error al obtener ubicación:', err);
+                            alert("Error al cargar ubicación: " + err.message);
+                            document.getElementById("store-name").textContent = `${store.store_name} - Error de ubicación`;
+                            hideSpinner();
+                        });
+                })
+                .catch(err => {
+                    console.error('Error al obtener datos de la tienda:', err);
+                    alert("Error al cargar la tienda");
+                    document.getElementById("store-name").textContent = "Error al cargar tienda";
+                    hideSpinner();
+                });
+        });
+
+        function cargarProductos(storeId) {
+            fetch(`https://uttsmarket.bsite.net/api/products/readByStore/${storeId}`)
+                .then(res => res.json())
+                .then(productos => {
+                    if (!Array.isArray(productos) || productos.length === 0) {
+                        document.getElementById("product-list").innerHTML = "<p style='text-align:center;'>No hay productos disponibles.</p>";
+                        return;
+                    }
+
+                    const contenedor = document.getElementById("product-list");
+                    contenedor.innerHTML = "";
+
+                    const peticiones = productos.map(p =>
+                        fetch(`https://uttsmarket.bsite.net/api/products/read/${p.product_id}`)
+                            .then(res => res.json())
+                            .then(prod => {
+                                const thumbnail = prod.thumbnail && prod.thumbnail.trim() !== ""
+                                    ? prod.thumbnail
+                                    : "/www/img/food-placeholder1.jpg";
+
+                                const card = `
+                                    <div class="card" style="width: 120px; border-radius: 10px; overflow: hidden;">
+                                        <img src="${thumbnail}" class="card-img-top" style="height: 100px; object-fit: cover;">
+                                        <div class="card-body p-1 text-center">
+                                            <p class="card-title" style="font-size: 0.85em; margin: 0;">${prod.product_name}</p>
+                                            <p class="card-text" style="font-size: 0.8em; color: #444;">MX $${prod.price}</p>
+                                        </div>
+                                    </div>
+                                `;
+                                contenedor.innerHTML += card;
+                            })
+                    );
+
+                    Promise.all(peticiones).catch(err => {
+                        console.error("Error cargando productos:", err);
+                        document.getElementById("product-list").innerHTML = "<p style='text-align:center;'>Error al mostrar productos.</p>";
+                    });
+                })
+                .catch(err => {
+                    console.error("Error en readByStore:", err);
+                    document.getElementById("product-list").innerHTML = "<p style='text-align:center;'>Error al obtener productos.</p>";
+                });
+        }
+    </script>
+</body>
+</html>
